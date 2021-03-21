@@ -1,0 +1,25 @@
+---
+title: "The Spread of Covid-19 - Research Proposal"
+author: 'Gyasi Alexander, Satheesh Joseph, Paco Valdez, Yi Zhang'
+output: pdf_document
+---
+```{r, echo = FALSE, results='hide', message=FALSE}
+library(dplyr)
+library(tidyverse)
+library(magrittr)
+library(ggplot2)
+library(sandwich)
+library(lmtest)
+library(stargazer)
+```
+
+
+
+
+
+
+
+
+
+
+
