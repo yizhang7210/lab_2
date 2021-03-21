@@ -1,0 +1,56 @@
+---
+title: "COVID Data Chomper (CDC)"
+author: "Kevin Martin"
+output: html_notebook 
+---
+
+This tool will grab data from the New York Times Covid case tracker dataset on github and help you chomp it up into a form that is more useful to you. Feel free to modify and supplement this file as desired. 
+
+## Import libraries
+
+```{r setup}
+## Import libraries
+library("data.table")
+library("ggplot2")
+```
+
+## Pull data from NYT COVID Database and plot summary
+
+```{r get_data}
+NYT_Data <- fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
+summary(NYT_Data)
+```
+
+## Convert date strings to dates. 
+
+```{r clean_data}
+NYT_Data[,date:=as.Date(date)]
+summary(NYT_Data)
+```
+
+## Plot out some case data exploration
+
+_See the R graph gallery for some beautiful things you can do with ggplot ([link](https://www.r-graph-gallery.com/277-marginal-histogram-for-ggplot2.html))_
+
+```{r plot_cases}
+state_i <- "New York"
+plot_data <- NYT_Data[state == state_i,]
+
+p <- ggplot(plot_data, aes(x=date, y=cases)) + 
+  geom_col()
+
+p
+```
+
+We can see from our plotting that NYT is giving us **cumulative** cases and deaths for any given day for any given state. If we want cases that occur in a given time window, we'll just subtract cases at given time points as below.
+
+## Calculate cases on a time interval
+
+```{r calc_time_frame}
+start.date <- as.Date("2021-01-01")
+end.date <- as.Date("2021-02-28")
+interval.cases <- NYT_Data[state == state_i & date == end.date, cases] - NYT_Data[state == state_i & date == start.date, cases]
+```
+
+Between `r start.date` and `r end.date`, `r state_i` registered `r interval.cases` cases of COVID 19
+
