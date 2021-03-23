@@ -1,17 +1,80 @@
 ---
-title: "The Spread of Covid-19 - Research Proposal"
-author: 'Gyasi Alexander, Satheesh Joseph, Paco Valdez, Yi Zhang'
+title: "Does wearing mask save lives? - Research Proposal"
+author: 'Satheesh Joseph, Paco Valdez, Yi Zhang'
 output: pdf_document
 ---
-```{r, echo = FALSE, results='hide', message=FALSE}
-library(dplyr)
-library(tidyverse)
-library(magrittr)
-library(ggplot2)
-library(sandwich)
-library(lmtest)
-library(stargazer)
+
+
+## Background
+
+The Covid-19 pandemic has taken more than 2.5 million lives worldwide. In the U.S.
+alone, more than half a million people have died because of it.
+
+One major point of contention in the national conversation on Covid-19 policies
+is around face masks. There seems to be both extremely strong advocates **for** as
+well as *against* mask wearing.
+
+Therefore as a team of Data Scientists, we're interested in answering exactly
+the question of whether face mask helped with containing the spread of Covid-19.
+
+
+## Research Question
+
+Rather than investigating the effect of face masks on a micro, personal interaction
+level, we are interested in its effect on a policy level.
+
+Specifically the Research Question we're asking is:
 ```
+Does the policy of mandating face masks cause fewer Covid-19 cases?
+```
+
+## Operationalization
+
+To unpack the high level question, there are a few components to this.
+
+**Firstly**, we'll use the [New York Times](https://github.com/nytimes/covid-19-data)
+Covid-19 data for the number of Covid cases per State. However, the raw number
+of cases is not a great measure of Covid spread, so we will normalize it by the
+population of the States and use "cases per 100,000 residents" as a more
+accurate measure. The population data will come from the
+[COVID-19 US State Policy Database](www.tinyurl.com/statepolicies).
+
+**Secondly**, we noticed that the Covid cases metric is a time-series data, and the
+policy of face masks is put in place at different times in different states, so
+it is also time sensitive. Also given that we know Covid symptoms typically start
+between 2 to 14 days after exposure[1], we would build in a time delay between
+the policy is in place and the counting of Covid cases.
+
+We would break the time from March 2020 to March 2021 in 2 week periods, and
+stagger the mask policy and the number of cases by 1 period. For example, one
+data point would be:
+```
+x = California's Mask Policy between 2020-03-01 and 2020-03-14
+y = California's total number of cases between 2020-03-15 and 2020-03-28
+```
+
+The face mask policy data will also come from
+[COVID-19 US State Policy Database](www.tinyurl.com/statepolicies).
+
+
+**And Finally**, for our more advanced models, we would also like to consider other
+control variables to isolate the effect of face masks. For example, we think the
+"State of Emergency" policy (from the same State Policy Database), as well as
+some sections of community mobility data (
+from [COVID-19 Community Mobility Report](https://www.google.com/covid19/mobility/))
+can all be valuable explanatory variables in controlling the effect of face mask
+policy on the spread of Covid-19.
+
+
+
+## References:
+```
+[1]: https://www.emersonhospital.org/articles/allergies-or-covid-19
+```
+
+
+
+
 
 
 
