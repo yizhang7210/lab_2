@@ -1,5 +1,5 @@
 ---
-title: "Does wearing mask save lives? - Research Proposal"
+title: "How much did work from home help? - Research Proposal"
 author: 'Satheesh Joseph, Paco Valdez, Yi Zhang'
 output: pdf_document
 ---
@@ -8,24 +8,26 @@ output: pdf_document
 ## Background
 
 The Covid-19 pandemic has taken more than 2.5 million lives worldwide. In the U.S.
-alone, more than half a million people have died because of it.
+alone, more than half a million people died because of it.
 
-One major point of contention in the national conversation on Covid-19 policies
-is around face masks. There seems to be both extremely strong advocates **for** as
-well as *against* mask wearing.
+COVID-19 is thought to spread mainly through close contact from person to person,
+including between people who are physically near each other (within about 6 feet).[1]
 
-Therefore as a team of Data Scientists, we're interested in answering exactly
-the question of whether face mask helped with containing the spread of Covid-19.
+As the virus spread, many cities and other areas have implemented a shutdown policy
+that significantly restricted the mobility of the population. Specifically, many
+company have opted for a complete work-from-home policy.
 
+As a team of Data Scientists, we're interested in assessing the effectiveness of
+restricting mobility in controlling the spread of Covid-19.
 
 ## Research Question
 
-Rather than investigating the effect of face masks on a micro, personal interaction
-level, we are interested in its effect on a policy level.
+Rather than investigating the effect of social distancing on a micro, personal
+interaction level, we are interested in its effect on a policy level.
 
 Specifically the Research Question we're asking is:
 ```
-Does the policy of mandating face masks cause fewer Covid-19 cases?
+How much does stop travelling to work help with the spread of Covid-19 cases?
 ```
 
 ## Operationalization
@@ -33,43 +35,42 @@ Does the policy of mandating face masks cause fewer Covid-19 cases?
 To unpack the high level question, there are a few components to this.
 
 **Firstly**, we'll use the [New York Times](https://github.com/nytimes/covid-19-data)
-Covid-19 data for the number of Covid cases per State. However, the raw number
-of cases is not a great measure of Covid spread, so we will normalize it by the
-population of the States and use "cases per 100,000 residents" as a more
-accurate measure. The population data will come from the
-[COVID-19 US State Policy Database](www.tinyurl.com/statepolicies).
+Covid-19 data for the number of Covid cases per State. And we will use the
+[COVID-19 Community Mobility Report](https://www.google.com/covid19/mobility/)
+for mobility score, specifically the workplace mobility score.
 
-**Secondly**, we noticed that the Covid cases metric is a time-series data, and the
-policy of face masks is put in place at different times in different states, so
-it is also time sensitive. Also given that we know Covid symptoms typically start
-between 2 to 14 days after exposure[1], we would build in a time delay between
-the policy is in place and the counting of Covid cases.
+**Secondly**, because mobility may have drastically different effect on the spread
+of the virus depending on the population density, we think having that variable
+alone as the causal factor can be very misleading. Therefore we think population
+density should be mandatory for all models. The data will come from
+the [COVID-19 US State Policy Database](www.tinyurl.com/statepolicies).
 
-We would break the time from March 2020 to March 2021 in 2 week periods, and
-stagger the mask policy and the number of cases by 1 period. For example, one
-data point would be:
+**And Finally**, we noticed that the Covid cases metric is a time-series data.
+Given that Covid symptoms typically start between 2 to 14 days after exposure[1],
+we would build in a time delay between the time of the mobility score and
+the Covid cases..
+
+We would break the time from March 2020 to March 2021 into 52 weeks, and
+stagger the mobility score and the number of cases by 1 week. Therefore the
+simplest linear model would be:
+$$
+total\_cases\_in\_week_{i+1} = \beta_0 + \beta_1 average\_mobility\_in\_week_i + \beta_2 population\_density
+$$
+
+For example, each data point would be:
 ```
-x = California's Mask Policy between 2020-03-01 and 2020-03-14
-y = California's total number of cases between 2020-03-15 and 2020-03-28
+x1 = average mobility score of a state between 2020-03-01 and 2020-03-06
+x2 = population density of the same state
+y = total number of cases between 2020-03-07 and 2020-03-13 of the same state
 ```
 
-The face mask policy data will also come from
-[COVID-19 US State Policy Database](www.tinyurl.com/statepolicies).
-
-
-**And Finally**, for our more advanced models, we would also like to consider other
-control variables to isolate the effect of face masks. For example, we think the
-"State of Emergency" policy (from the same State Policy Database), as well as
-some sections of community mobility data (
-from [COVID-19 Community Mobility Report](https://www.google.com/covid19/mobility/))
-can all be valuable explanatory variables in controlling the effect of face mask
-policy on the spread of Covid-19.
-
+For more advanced models, we will use more variables as control, for example
+the "Stay at Home" order, or the face mask policy, etc.
 
 
 ## References:
 ```
-[1]: https://www.emersonhospital.org/articles/allergies-or-covid-19
+[1]: https://www.cdc.gov/coronavirus/2019-ncov/faq.html
 ```
 
 
