@@ -11,11 +11,11 @@ The Covid-19 pandemic has taken more than 2.5 million lives worldwide. In the U.
 alone, more than half a million people died because of it.
 
 COVID-19 is thought to spread mainly through close contact from person to person,
-including between people who are physically near each other (within about 6 feet).[1]
+including among people who are physically near each other (within about 6 feet).[1]
 
 As the virus spread, many cities and other areas have implemented a shutdown policy
 that significantly restricted the mobility of the population. Specifically, many
-company have opted for a complete work-from-home policy.
+companies have opted for a complete work-from-home policy.
 
 As a team of Data Scientists, we're interested in assessing the effectiveness of
 restricting mobility in controlling the spread of Covid-19.
