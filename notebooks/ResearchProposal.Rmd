@@ -39,11 +39,11 @@ Covid-19 data for the number of Covid cases per State. And we will use the
 [COVID-19 Community Mobility Report](https://www.google.com/covid19/mobility/)
 for mobility score, specifically the workplace mobility score.
 
-**Secondly**, because mobility may have drastically different effect on the spread
-of the virus depending on the population density, we think having that variable
-alone as the causal factor can be very misleading. Therefore we think population
-density should be mandatory for all models. The data will come from
-the [COVID-19 US State Policy Database](www.tinyurl.com/statepolicies).
+**Secondly**, mobility have drastically different effect on the spread
+of the virus depending on the population density. Thus, having the variable 
+mobility alone as the causal factor is misleading. Therefore, the population
+density per sq. mile is a mandatory variable for all the models. This data will 
+come from the [COVID-19 US State Policy Database](www.tinyurl.com/statepolicies).
 
 **And Finally**, we noticed that the Covid cases metric is a time-series data.
 Given that Covid symptoms typically start between 2 to 14 days after exposure[1],
@@ -64,8 +64,12 @@ x2 = population density of the same state
 y = total number of cases between 2020-03-07 and 2020-03-13 of the same state
 ```
 
-For more advanced models, we will use more variables as control, for example
+For more advanced models, we will use a few more variables as control, for example
 the "Stay at Home" order, or the face mask policy, etc.
+
+## Feasibility Study
+
+
 
 
 ## References:
