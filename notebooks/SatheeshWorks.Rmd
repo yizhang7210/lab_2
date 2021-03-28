@@ -1,0 +1,61 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r load packages, message=FALSE}
+library(tidyverse)
+library(magrittr)
+library(ggplot2)
+library(patchwork)
+library(sandwich)
+library(lmtest)
+library(fec16)
+library("readxl")
+library(ggplot2)
+library(babynames) # provide the dataset: a dataframe called babynames
+library(dplyr)
+library(hrbrthemes)
+library(viridis)
+# Load the package
+library(lubridate)
+theme_set(theme_minimal())
+knitr::opts_chunk$set(dpi = 300)
+```
+
+```{r}
+setwd("/Users/anusatheesh/Documents/GitHub/lab_2_yi/data")
+mr <- read.csv("raw/2020_US_Region_Mobility_Report.csv")
+case_data <- read.csv("supplement/all-states-history.csv")
+don1 <- case_data %>% 
+  filter(state %in% c("CA"))
+```
+
+
+
+```{r}
+# Keep only 3 names
+don1$dt <- as.Date(don1$date)
+# Plot
+?scale_x_date()
+don1 %>%
+  ggplot(aes(x=dt, y=hospitalizedCurrently, group=state, color=state)) +
+    geom_line() +
+  scale_x_date(date_minor_breaks = "2 weeks") +
+    ggtitle("Hospitalizations in CA") +
+    ylab("COVID patients") +
+  xlab("Date")
+
+don <- mr %>% 
+  filter(sub_region_1 %in% c("California", "Alabama", "District of Columbia")) %>%
+  filter(sub_region_2 %in% c("")) %>%
+  rename(State = sub_region_1)
+# Plot
+don %>%
+  ggplot( aes(x=date, y=(transit_stations_percent_change_from_baseline), group=State, color=State)) +
+    geom_line() +
+    scale_color_viridis(discrete = TRUE) +
+    ggtitle("Transit station mobility across states") +
+    theme_ipsum() +
+    ylab("Deviation from Baseline")
+```
