@@ -94,7 +94,7 @@ mr <- read.csv("../data/raw/2020_US_Region_Mobility_Report.csv")
 case_data <- read.csv("../data/supplement/all-states-history.csv")
 
 data1 <- case_data %>% 
-  filter(state %in% c("CA"))
+  filter(state %in% c("CA", "AL", "DC"))
 # Keep only 3 names
 data1$dt <- as.Date(data1$date)
 
