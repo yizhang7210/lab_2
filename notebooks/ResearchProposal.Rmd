@@ -72,7 +72,7 @@ Our initial data analysis proves the dataset to be sufficient to answer the
 research question. Evidence of the exploration is presented below. 
 
 
-```{r}
+```{r, echo = FALSE, results='hide', message=FALSE}
 library(tidyverse)
 library(magrittr)
 library(ggplot2)
@@ -88,8 +88,8 @@ library(hrbrthemes)
 library(viridis)
 # Load the package
 library(lubridate)
-mr <- read.csv("/Users/anusatheesh/Documents/GitHub/lab_2_yi/data/raw/2020_US_Region_Mobility_Report.csv")
-case_data <- read.csv("/Users/anusatheesh/Documents/GitHub/lab_2_yi/data/supplement/all-states-history.csv")
+mr <- read.csv("../data/raw/2020_US_Region_Mobility_Report.csv")
+case_data <- read.csv("../data/supplement/all-states-history.csv")
 
 data1 <- case_data %>% 
   filter(state %in% c("CA"))
@@ -109,7 +109,6 @@ data %>%
     geom_line() +
     scale_color_viridis(discrete = TRUE) +
     ggtitle("Transit station mobility across states") +
-    theme_ipsum() +
     ylab("Deviation from Baseline") +
     xlab("Date")
 
