@@ -74,7 +74,7 @@ from NY times bolstered our confidence to successfully conduct this research.
 
 Evidence of the exploration is provided below. 
 
-```{r, echo = FALSE, results='hide', message=FALSE}
+```{r, echo = FALSE, results='hide', message=FALSE, fig.show="hold", out.width="50%"}
 library(tidyverse)
 library(magrittr)
 library(ggplot2)
