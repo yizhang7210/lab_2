@@ -1,15 +1,14 @@
 ---
-title: "How much did work from home help? - Research Proposal"
+title: "How much did restricting mobility help in controlling the spread of COVID?"
 author: 'Satheesh Joseph, Paco Valdez, Yi Zhang'
 output: pdf_document
 ---
 ## Background
 
 The Covid-19 pandemic has taken more than 2.5 million lives worldwide. In the U.S.
-alone, more than half a million people died because of it.
-
-COVID-19 is thought to spread mainly through close contact from person to person,
-including among people who are physically near each other (within about 6 feet).[1]
+alone, more than half a million people died because of it.COVID-19 is thought to 
+spread mainly through close contact from person to person, including among people 
+who are physically near each other (within about 6 feet).[1]
 
 As the virus spread, many cities and other areas have implemented a shutdown policy
 that significantly restricted the mobility of the population. Specifically, many
@@ -20,12 +19,11 @@ restricting mobility in controlling the spread of Covid-19.
 
 ## Research Question
 
-Rather than investigating the effect of social distancing on a micro, personal
-interaction level, we are interested in its effect on a policy level.
-
-Specifically the Research Question we're asking is:
+Rather than investigating the effect of social distancing on a micro and personal
+interaction level, we are interested in its effect on a policy level.Specifically,
+the Research Question we're asking is:
 ```
-How much does stop travelling to work help with the spread of Covid-19 cases?
+How much did restricting mobility help in controlling the spread of COVID?
 ```
 
 ## Operationalization
@@ -67,10 +65,14 @@ the "Stay at Home" order, or the face mask policy, etc.
 
 ## Feasibility Study
 
-A feasibility study of the research question using the COVID data set is conducted. 
-Our initial data analysis proves the dataset to be sufficient to answer the 
-research question. Evidence of the exploration is presented below. 
+A feasibility study of the research question using the given data set is conducted
+by the team. Community Mobility Report provides us with the needed insights into 
+the relative decrease in mobility across categories of places. Combining the 
+insights with the US State Policy data gives us a clear picture of the restrictions 
+in place across the USA. Plotting this information on top of the surge in cases data 
+from NY times bolstered our confidence to successfully conduct this research. 
 
+Evidence of the exploration is provided below. 
 
 ```{r, echo = FALSE, results='hide', message=FALSE}
 library(tidyverse)
