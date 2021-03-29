@@ -118,7 +118,7 @@ data1 %>%
   ggplot(aes(x=dt, y=hospitalizedCurrently, group=state, color=state)) +
     geom_line() +
     scale_x_date(date_minor_breaks = "2 weeks") +
-    ggtitle("Hospitalizations in CA") +
+    ggtitle("Hospitalizations across states") +
     ylab("COVID patients") +
     xlab("Date")
 
