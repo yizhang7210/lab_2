@@ -1,0 +1,83 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r setup}
+## Import libraries
+library("data.table")
+library("ggplot2")
+library(readxl)
+library(readr)
+library(zoo)
+
+```
+
+```{r get_data}
+
+policies <- read_excel("~/berkeley/lab_2/data/raw/State_Policy_database.xlsx")
+mobility <- read_csv("~/berkeley/lab_2/data/raw/2020_US_Region_Mobility_Report.csv")
+
+
+
+NYT_Data <- fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv")
+summary(NYT_Data)
+```
+```{r clean_data}
+NYT_Data[,date:=as.Date(date)]
+cases_states <- NYT_Data %>% group_by(date, state) %>% summarise(
+   cases_by_state=sum(cases)
+)
+cases_states$date <- as.Date(cases_states$date)
+cases_states <- cases_states %>% group_by(state) %>% mutate(
+  prev_day = lag(cases_by_state, 1, order_by=state),
+  prev_week = lag(cases_by_state, 7, order_by=state),
+  prev_2week = lag(cases_by_state, 14, order_by=state),
+)
+cases_states$dow <- weekdays(as.Date(cases_states$date))
+
+cases_states$rate_cases <- cases_states$cases_by_state/cases_states$prev_day
+mobility_states <- mobility %>% filter(is.na(census_fips_code))  %>% filter(!is.na(sub_region_1))
+mobility_states$state = mobility_states$sub_region_1
+data <- cases_states %>% inner_join(mobility_states, by=c("date", "state"))
+california <- data[data$state == 'California',]
+```
+
+```{r}
+ggplot(california, aes(x=date, y=rate_cases)) + geom_line(color="#69b3a2") + xlab("")
+```
+
+```{r}
+ggplot(california, aes(x=date, y=cases_by_state)) + geom_line(color="#69b3a2") + xlab("")
+```
+
+```{r}
+# TO-DO 7 day moving average
+ggplot(california, aes(x=date, y=workplaces_percent_change_from_baseline)) + geom_line( color="#69b3a2") + xlab("")
+```
+
+
+
+```{r calc_time_frame}
+california$delta7_cases <- california$prev_week - california$prev_2week
+
+weekly <- california[california$dow == 'Monday',]
+ggplot(weekly, aes(x=date, y=delta7_cases)) + geom_line( color="#69b3a2") + xlab("")
+```
+
+
+```{r simple_model}
+
+model_one <- lm(delta7_cases ~ workplaces_percent_change_from_baseline, data=weekly)
+
+
+weekly %>% 
+  mutate(
+    model_one_preds = predict(model_one), 
+    model_one_resids = resid(model_one)
+  ) %>% 
+  ggplot(aes(model_one_preds, model_one_resids)) + 
+  geom_point() + 
+  stat_smooth()
+```
