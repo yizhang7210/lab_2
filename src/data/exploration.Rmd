@@ -4,26 +4,30 @@ output: html_notebook
 ---
 
 
-```{r setup}
+```{r setup, echo=False ,message=FALSE, include=FALSE, warning=FALSE}
 ## Import libraries
 library("data.table")
 library("ggplot2")
 library(readxl)
 library(readr)
 library(zoo)
-
+library(patchwork)
 ```
 
-```{r get_data}
-
-State_Policies <- read_excel("../../data/raw/State_Policy_database.xlsx")
+```{r get_data, echo=False ,message=FALSE, include=FALSE, warning=FALSE}
+col_names = c('STATE', 'POSTCODE', 'FIPS', 'STEMERG', 'STEMERGEND', 'CLSCHOOL', 'CLDAYCR', 'OPNCLDCR', 'CLNURSHM', 'STAYHOME', 'STAYHOMENOGP', 'END_STHM', 'CLBSNS', 'CURFEW', 'END_BSNS', 'RELIGEX', 'FM_ALL', 'FM_ALL2', 'FMFINE', 'FMCITE', 'FMNOENF', 'FM_EMP', 'FM_END', 'FM_STP', 'ALCOPEN', 'ALCREST', 'ALCDELIV', 'GUNOPEN', 'CLREST', 'ENDREST', 'RSTOUTDR', 'CLGYM', 'ENDGYM', 'CLMOVIE', 'END_MOV', 'CLOSEBAR', 'END_BRS', 'END_HAIR', 'END_RELG', 'ENDRETL', 'CURFEWEND', 'BCLBAR2', 'CLBAR2', 'CLMV2', 'CLHAIR2', 'CLGYM2', 'CLRST2', 'ENDREST2', 'END_BRS2', 'END_CLGYM2', 'END_CLMV2', 'CLBAR3', 'CLRST3', 'END_CLRST3', 'QRSOMEST', 'QR_ALLST', 'QR_END', 'VAC_PLAN', 'VAC_HCW', 'VAC_HCS', 'VAC_HHC', 'VAC_AHC', 'VAC_LTC', 'VAC_EMS', 'VAC_FF', 'VAC_LAW', 'VAC_CORR', 'VAC_INC', 'VAC_SHELTER', 'VAC_75', 'VAC_65', 'VAC_HR', 'VAC_K12', 'VAC_HIGHED', 'VAC_PT', 'VAC_FOOD', 'VAC_GROCERY', 'VAC_ESSWORK', 'VAC_ADDWORK', 'VAC_PUB', 'AGEPRIORITY', 'PROOFWORK', 'PROOFAGE', 'PROOFRES', 'PENALTY', 'EXPANDADMIN', 'EMSTART', 'EMEND', 'EMSTART2', 'EMEND2', 'EMSTART3', 'EMEND3', 'FREEZEINIT', 'LIFTINIT', 'FREEZEINIT2', 'LIFTINIT2', 'COURTCLOSE', 'COURTOPEN', 'COURTCLOSE2', 'COURTOPEN2', 'FREEZEENF', 'LIFTENF', 'FREEZEENF2', 'LIFTENF2', 'C19START', 'C19END', 'C19START2', 'C19END2', 'CARESSTART', 'CARESEND', 'CDCSTART', 'CDCEND', 'SMSTART', 'SMEND', 'SMSTART2', 'URSTART', 'UREND', 'SNAPALLO', 'SNAPEBT', 'SNAPSUSP', 'SNAPTLW', 'MED1135W', 'ACAENROL', 'PREVTLHL', 'TLHLAUD', 'TLHLMED', 'CHIPLKOT', 'LKOTSUS', 'TEST', 'CASE', 'HOSP', 'DEATH', 'VACCINE', 'TESTAIAN', 'CASEAIAN', 'HOSPAIAN', 'DEATHAIAN', 'VACCINEAIAN', 'VISITPER', 'VISITATT', 'VISITRES', 'NOCOPAY', 'NOPAYCOV', 'NOPAYALL', 'YESCOPAY', 'ELECPRCR', 'ENDELECP', 'ELECNOSTART', 'ELECPRCR2', 'ENDELECP2', 'WTPRD', 'WV_WTPRD', 'REI_WTPRD', 'WV_WKSR', 'REI_WKSR', 'UIQUAR', 'UIHIRISK', 'UICLDCR', 'UIEXTND', 'UIMAXAMT', 'UIMAXEXT', 'UIMAXDUR', 'UIMAXCAR', 'EBSTART', 'EBEND', 'TUR', 'TURPRIOR', 'TURPRIOR2', '20EBSTART', '20EBEND', 'UIMINBP', 'UIQTRNEED', 'UIOUTHQBP', 'UIREQBPL2Q', 'UIBPEARN300', 'UITAXWA', 'UIMINTAXR', 'UIMAXTAXR', 'UIAVGBFTAUG', 'LMABRN', 'TLHlBUPR', 'EXTOPFL', 'HMDLVOP', 'TLHLCL24', 'EXCEMORP', 'WVDEAREQ', 'PDSKLV', 'MEDEXP', 'POPDEN18', 'POP18', 'SQML', 'HMLS19', 'UNEMP18', 'POV18', 'RISKCOV', 'DEATH18', 'MH19', 'CASSTATE', 'AIANRESN', 'VBMEXC', 'VBMSIG', 'VBMPERM', 'VBMAUTOBAL', 'VBMAUTOAP', 'VBMGENELEC', 'CASCLOSE', 'CASOPEN', 'CASCLOSE2', 'CASOPEN2', 'CASTRIBCAS', 'MINWAGE2015', 'MINWAGE2016', 'MINWAGE2017', 'MINWAGE2018', 'MINWAGE2019', 'MINWAGEJAN2020', 'MINWAGEJUL2020', 'MINWAGESEP2020', 'MINWAGEOCT2020', 'TIPMINWAGE2020', 'MINWAGE2021', 'SMALLBUSMINWAGE')
+col_types= c('text', 'text', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'text', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric')
+  
+State_Policies <- read_excel("../../data/raw/State_Policy_database.xlsx", skip = 5, col_names = col_names, col_types = col_types)
 mobility <- read_csv("../../data/raw/2020_US_Region_Mobility_Report.csv")
 
 NYT_Data <- fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
 NYT_Data[,date:=as.Date(date)]
 summary(NYT_Data)
 ```
-```{r clean_data}
+
+
+```{r clean_data, echo=TRUE}
 cases_states <- NYT_Data
 # Yes, again to date
 cases_states$date <- as.Date(cases_states$date)
@@ -40,6 +44,7 @@ cases_states <- cases_states[!is.na(cases_states$delta14_cases),]
 cases_states$dow <- weekdays(as.Date(cases_states$date))
 # this is also a possible candidate for the model
 cases_states$rate_cases <- cases_states$next_week/cases_states$cases
+cases_states$rate_cases2w <- cases_states$next_2week/cases_states$next_week
 cases_states <- cases_states[!is.na(cases_states$rate_cases),]
 
 # For mobility we need first to keep only state level data
@@ -56,48 +61,69 @@ mobility_states <- mobility_states %>% group_by(state) %>% mutate(
 # Lets remove NaNs rows which should be the first week for each state.
 mobility_states <- mobility_states[!is.na(mobility_states$workplaces_ra7),]
 #Now lets get Pop Density and others
-policies <- State_Policies %>% select(STATE, POPDEN18) %>% mutate(
+policies <- State_Policies %>% mutate(
   state=STATE, 
-  popden=as.numeric(POPDEN18))  %>% select(state, popden)
+  popden=POPDEN18,
+  fm_start=case_when(
+    as.Date(FM_ALL)==as.Date('1899-12-31') ~ as.Date('2099-12-31'),
+    TRUE ~ as.Date(FM_ALL)
+    ),
+  fm_start2=case_when(
+    as.Date(FM_ALL2)==as.Date('1899-12-31') ~ as.Date('2099-12-31'),
+    TRUE ~ as.Date(FM_ALL2)
+    ),
+  fm_end=case_when(
+    as.Date(FM_END)==as.Date('1899-12-31') ~ as.Date('2099-12-31'),
+    TRUE ~ as.Date(FM_END)
+    )
+  )  %>% select(state, popden, fm_start, fm_start2, fm_end)
 policies <- policies[!is.na(policies$popden),]
-# TO-DO Fask Mandate
 # Now we can join
 data <- cases_states %>% inner_join(mobility_states, by=c("date", "state"))
 data <- data  %>% inner_join(policies, by=c("state"))
+# Add Facemask Mandate
+data <- data %>% mutate(
+  fm=case_when(
+    (date >= fm_start & date < fm_end) | date >= fm_start2 ~ 1,
+    TRUE ~ 0
+  )
+)
 # Lets do Mondays because it looks like cases data is updated on Sundays.
 weekly <- data[data$dow == 'Monday',]
 weekly <- weekly %>% select(date, state, cases, delta7_cases, delta14_cases, 
-                            rate_cases, workplaces_ra7, transit_ra7, 
-                            residential_ra7, grocery_ra7, parks_ra7, popden)
+                            rate_cases, rate_cases2w, workplaces_ra7, transit_ra7, 
+                            residential_ra7, grocery_ra7, parks_ra7, popden, fm)
+# weekly <- weekly[weekly$date > '2020-03-30',]
 summary(weekly)
 
 
 # Let's create datasets for california for plots
 california <- data[data$state == 'California',]
+california <- california[california$date > '2020-03-30',]
+
 california_weekly <- weekly[weekly$state == 'California',]
-
-```
-
-```{r california_rate}
-ggplot(california, aes(x=date, y=rate_cases)) + geom_line(color="#69b3a2") + xlab("")
+california_weekly <- california_weekly[california_weekly$date > '2020-03-30',]
 ```
 
 ```{r california_cumsum}
-ggplot(california, aes(x=date, y=cases)) + geom_line(color="#69b3a2") + xlab("")
+# cases is cumulative
+# workplaces is the inverse of residential,
+# but the scale of residential is better suited for OLS
+p1 <- ggplot(california, aes(x=date, y=cases)) + geom_line(color="#69b3a2") + xlab("")
+p2 <- ggplot(california, aes(x=date, y=workplaces_ra7)) + geom_line(color="#69b3a2") + xlab("")
+p3 <- ggplot(california, aes(x=date, y=residential_ra7)) + geom_line(color="#69b3a2") + xlab("")
+
+p1/p2/p3
 ```
-
-```{r california_work}
-ggplot(california_weekly, aes(x=date, y=workplaces_ra7)) + geom_line( color="#69b3a2") + xlab("")
-```
-
-
 
 ```{r california_cases_weekly}
-ggplot(california_weekly, aes(x=date, y=delta7_cases)) + geom_line( color="#69b3a2") + xlab("")
+p1 <- ggplot(california_weekly, aes(x=date, y=delta7_cases)) + geom_line( color="#69b3a2") + xlab("")
+p2 <- ggplot(california_weekly, aes(x=date, y=residential_ra7)) + geom_line( color="#69b3a2") + xlab("")
+p3 <- ggplot(california_weekly, aes(x=date, y=rate_cases)) + geom_line(color="#69b3a2") + xlab("")
+p1 / p2 / p3
 ```
 
-
-```{r simple_model}
+```{r simple_model_delta}
 
 model_one <- lm(delta7_cases ~ workplaces_ra7 + popden, data=weekly)
 # Try this ones too
@@ -105,12 +131,19 @@ model_one <- lm(delta7_cases ~ workplaces_ra7 + popden, data=weekly)
 # model_one <- lm(delta7_cases ~ parks_ra7 + popden, data=weekly)
 # model_one <- lm(delta7_cases ~ grocery_ra7 + popden, data=weekly)
 # model_one <- lm(delta7_cases ~ residential_ra7 + popden, data=weekly)
+summary(model_one)
+```
+
+```{r simple_model_rates}
+
+model_one <- lm(rate_cases ~ residential_ra7 + popden, data=weekly)
 # model_one <- lm(rate_cases ~ workplaces_ra7 + popden, data=weekly)
 summary(model_one)
 ```
 
+
 ```{r cal_residuals}
-model_one_cal <- lm(delta7_cases ~ workplaces_ra7, data=california_weekly)
+model_one_cal <- lm(rate_cases ~ residential_ra7, data=california_weekly)
 california_weekly %>% 
   mutate(
     model_one_preds = predict(model_one_cal), 
@@ -120,3 +153,22 @@ california_weekly %>%
   geom_point() + 
   stat_smooth()
 ```
+
+```{r model_two_delta}
+
+model_two <- lm(delta7_cases ~ workplaces_ra7 + popden + fm, data=weekly)
+# Try this ones too
+# model_two <- lm(delta7_cases ~ transit_ra7 + popden + fm, data=weekly)
+# model_two <- lm(delta7_cases ~ parks_ra7 + popden + fm, data=weekly)
+# model_two <- lm(delta7_cases ~ grocery_ra7 + popden + fm, data=weekly)
+# model_two <- lm(delta7_cases ~ residential_ra7 + popden + fm, data=weekly)
+summary(model_two)
+```
+
+```{r model_two_rate}
+ model_two <- lm(rate_cases ~ residential_ra7 + popden + fm, data=weekly)
+# model_two <- lm(rate_cases ~ workplaces_ra7 + popden + fm, data=weekly)
+summary(model_two)
+```
+
+
