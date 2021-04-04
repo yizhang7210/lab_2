@@ -16,66 +16,105 @@ library(zoo)
 
 ```{r get_data}
 
-policies <- read_excel("~/berkeley/lab_2/data/raw/State_Policy_database.xlsx")
-mobility <- read_csv("~/berkeley/lab_2/data/raw/2020_US_Region_Mobility_Report.csv")
+State_Policies <- read_excel("../../data/raw/State_Policy_database.xlsx")
+mobility <- read_csv("../../data/raw/2020_US_Region_Mobility_Report.csv")
 
-
-
-NYT_Data <- fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv")
+NYT_Data <- fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
+NYT_Data[,date:=as.Date(date)]
 summary(NYT_Data)
 ```
 ```{r clean_data}
-NYT_Data[,date:=as.Date(date)]
-cases_states <- NYT_Data %>% group_by(date, state) %>% summarise(
-   cases_by_state=sum(cases)
-)
+cases_states <- NYT_Data
+# Yes, again to date
 cases_states$date <- as.Date(cases_states$date)
+# Group by state and window lead because `cases` is a cumulative sum of Covid19 cases
 cases_states <- cases_states %>% group_by(state) %>% mutate(
-  prev_day = lag(cases_by_state, 1, order_by=state),
-  prev_week = lag(cases_by_state, 7, order_by=state),
-  prev_2week = lag(cases_by_state, 14, order_by=state),
+  prev_week = lag(cases, 7, order_by=state),
+  next_week = lead(cases, 7, order_by=state),
+  next_2week = lead(cases, 14, order_by=state),
 )
+cases_states$delta14_cases <- cases_states$next_2week - cases_states$next_week
+cases_states$delta7_cases <- cases_states$next_week - cases_states$cases
+cases_states <- cases_states[!is.na(cases_states$delta7_cases),]
+cases_states <- cases_states[!is.na(cases_states$delta14_cases),]
 cases_states$dow <- weekdays(as.Date(cases_states$date))
+# this is also a possible candidate for the model
+cases_states$rate_cases <- cases_states$next_week/cases_states$cases
+cases_states <- cases_states[!is.na(cases_states$rate_cases),]
 
-cases_states$rate_cases <- cases_states$cases_by_state/cases_states$prev_day
+# For mobility we need first to keep only state level data
 mobility_states <- mobility %>% filter(is.na(census_fips_code))  %>% filter(!is.na(sub_region_1))
 mobility_states$state = mobility_states$sub_region_1
+# For mobility we need rolling average since we are doing weekly comparitions
+mobility_states <- mobility_states %>% group_by(state) %>% mutate(
+  workplaces_ra7 = rollmean(workplaces_percent_change_from_baseline, k = 7, fill = NA),
+  transit_ra7 = rollmean(transit_stations_percent_change_from_baseline, k = 7, fill = NA),
+  residential_ra7 = rollmean(residential_percent_change_from_baseline, k = 7, fill = NA),
+  grocery_ra7 = rollmean(grocery_and_pharmacy_percent_change_from_baseline, k = 7, fill = NA),
+  parks_ra7 = rollmean(parks_percent_change_from_baseline, k = 7, fill = NA),
+)
+# Lets remove NaNs rows which should be the first week for each state.
+mobility_states <- mobility_states[!is.na(mobility_states$workplaces_ra7),]
+#Now lets get Pop Density and others
+policies <- State_Policies %>% select(STATE, POPDEN18) %>% mutate(
+  state=STATE, 
+  popden=as.numeric(POPDEN18))  %>% select(state, popden)
+policies <- policies[!is.na(policies$popden),]
+# TO-DO Fask Mandate
+# Now we can join
 data <- cases_states %>% inner_join(mobility_states, by=c("date", "state"))
+data <- data  %>% inner_join(policies, by=c("state"))
+# Lets do Mondays because it looks like cases data is updated on Sundays.
+weekly <- data[data$dow == 'Monday',]
+weekly <- weekly %>% select(date, state, cases, delta7_cases, delta14_cases, 
+                            rate_cases, workplaces_ra7, transit_ra7, 
+                            residential_ra7, grocery_ra7, parks_ra7, popden)
+summary(weekly)
+
+
+# Let's create datasets for california for plots
 california <- data[data$state == 'California',]
+california_weekly <- weekly[weekly$state == 'California',]
+
 ```
 
-```{r}
+```{r california_rate}
 ggplot(california, aes(x=date, y=rate_cases)) + geom_line(color="#69b3a2") + xlab("")
 ```
 
-```{r}
-ggplot(california, aes(x=date, y=cases_by_state)) + geom_line(color="#69b3a2") + xlab("")
+```{r california_cumsum}
+ggplot(california, aes(x=date, y=cases)) + geom_line(color="#69b3a2") + xlab("")
 ```
 
-```{r}
-# TO-DO 7 day moving average
-ggplot(california, aes(x=date, y=workplaces_percent_change_from_baseline)) + geom_line( color="#69b3a2") + xlab("")
+```{r california_work}
+ggplot(california_weekly, aes(x=date, y=workplaces_ra7)) + geom_line( color="#69b3a2") + xlab("")
 ```
 
 
 
-```{r calc_time_frame}
-california$delta7_cases <- california$prev_week - california$prev_2week
-
-weekly <- california[california$dow == 'Monday',]
-ggplot(weekly, aes(x=date, y=delta7_cases)) + geom_line( color="#69b3a2") + xlab("")
+```{r california_cases_weekly}
+ggplot(california_weekly, aes(x=date, y=delta7_cases)) + geom_line( color="#69b3a2") + xlab("")
 ```
 
 
 ```{r simple_model}
 
-model_one <- lm(delta7_cases ~ workplaces_percent_change_from_baseline, data=weekly)
+model_one <- lm(delta7_cases ~ workplaces_ra7 + popden, data=weekly)
+# Try this ones too
+# model_one <- lm(delta7_cases ~ transit_ra7 + popden, data=weekly)
+# model_one <- lm(delta7_cases ~ parks_ra7 + popden, data=weekly)
+# model_one <- lm(delta7_cases ~ grocery_ra7 + popden, data=weekly)
+# model_one <- lm(delta7_cases ~ residential_ra7 + popden, data=weekly)
+# model_one <- lm(rate_cases ~ workplaces_ra7 + popden, data=weekly)
+summary(model_one)
+```
 
-
-weekly %>% 
+```{r cal_residuals}
+model_one_cal <- lm(delta7_cases ~ workplaces_ra7, data=california_weekly)
+california_weekly %>% 
   mutate(
-    model_one_preds = predict(model_one), 
-    model_one_resids = resid(model_one)
+    model_one_preds = predict(model_one_cal), 
+    model_one_resids = resid(model_one_cal)
   ) %>% 
   ggplot(aes(model_one_preds, model_one_resids)) + 
   geom_point() + 
