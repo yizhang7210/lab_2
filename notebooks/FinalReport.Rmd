@@ -16,8 +16,7 @@ that significantly restricted the mobility of the population. Specifically, many
 companies have opted for a complete work-from-home policy.
 
 As a team of Data Scientists, we're interested in assessing the effectiveness of
-restricting mobility, in particular to the workplace, in controlling the spread
-of Covid-19.
+restricting mobility in controlling the spread of Covid-19.
 
 ### Research Question
 
@@ -25,7 +24,7 @@ Rather than investigating the effect of social distancing on a micro and persona
 interaction level, we are interested in its effect on a policy level. Specifically,
 the Research Question we're asking is:
 ```
-How much did restricting mobility to the workplace help in controlling the spread of COVID?
+How much did restricting social mobility help in controlling the spread of COVID?
 ```
 
 The basic causal theory we're working under can be expressed by the diagram below:
@@ -35,17 +34,20 @@ knitr::include_graphics("./Basic-Causal-Theory.png")
 
 ### Operationalization
 To operationalize the research question, we propose the following plan for the
-basic causal model.
+causal models.
 
-**Firstly**, we'll use the [New York Times](https://github.com/nytimes/covid-19-data)
+**Firstly**, we will use the [New York Times](https://github.com/nytimes/covid-19-data)
 Covid-19 data for the number of Covid cases per State. And we will use the
 [COVID-19 Community Mobility Report](https://www.google.com/covid19/mobility/)
-for the worksapce mobility score, specifically the workplace mobility score.
+for the population mobility scores. For the base model, we will use the "residential
+mobility score" as a relatively stable representative of the general population's
+social mobility.
 
 **Secondly**, mobility have drastically different effect on the spread
-of the virus depending on the population density. Thus, having the variable 
-mobility alone as the causal factor is misleading. Therefore, we feel that the
-population density per sq. mile should be a mandatory variable for all the models.
+of the virus depending on the population density. Thus, we believe that having
+the variable  mobility alone as the causal factor would be misleading. Therefore,
+we feel that the population density per sq. mile should be a mandatory variable
+for all the models.
 This data will  come from the [COVID-19 US State Policy Database](www.tinyurl.com/statepolicies).
 
 **And Finally**, we noticed that the Covid cases metric is a time-series data.
@@ -67,9 +69,13 @@ x2 = population density of the California
 y = total number of cases in California between 2020-03-07 and 2020-03-13
 ```
 
-For more advanced models, we propose to use more variables as control, for example,
-whether the "Stay at Home" order is in effect, whether the face mask policy is
-in effect.
+For a more advanced model, we propose to use some control variables to assess
+the difference mobility score makes in relation to other factors, notably we'll
+include whether the "Stay at Home" order is in effect and whether the face mask
+policy is in effect.
+
+For the most inclusive model, we will explore all the other mobility scores,
+including to workplaces, parks, grocery & pharmacy, as well as retail & recreation.
 
 
 # The models
