@@ -100,14 +100,14 @@ yearly average for the states and use it in the model.
 
 ### Omitted Variables
 
-How much mandates were in practice?
+Diligently practicing mandates:
 
 Though, State and County put restrictions, including Mask mandate, Curfew, 
 Social distance, park, school and restaurant closures, how much general public 
 abide to these mandates is a very good [Omitted] indicator that influence the 
 total cases.
 
-All Percent drops are not equal?
+All Percent drops are not equal:
 
 A 10% drop in mobility is really good for sparsely populated regions to go below
 a certain threshold in transmitting the virus. The same cannot be applied to 
