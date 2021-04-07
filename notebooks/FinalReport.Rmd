@@ -90,9 +90,24 @@ including to workplaces, parks, grocery & pharmacy, as well as retail & recreati
 
 # Model Limitations
 
+The Research Question under study is well suited for a time series analysis. The
+initial discussion and work, were poised to well take off in including a weekly 
+average and correlation with the cases offset by couple of weeks. As per the 
+instruction and the limited machinery in place, the team has decided to take 
+yearly average for the states and use it in the model.
+
 ### Classic Linear Model assessment
 
 ### Omitted Variables
+
+How much mandates were in practice?
+
+Though, State and County put restrictions, including Mask mandate, Curfew, 
+Social distance, park, school and restaurant closures, how much general public 
+abide to these mandates is a very good [Omitted] indicator that influence the 
+total cases.
+
+
 
 # Conclusion
 
