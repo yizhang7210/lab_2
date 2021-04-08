@@ -45,29 +45,20 @@ social mobility.
 
 **Secondly**, mobility have drastically different effect on the spread
 of the virus depending on the population density. Thus, we believe that having
-the variable  mobility alone as the causal factor would be misleading. Therefore,
-we feel that the population density per sq. mile should be a mandatory variable
-for all the models.
-This data will  come from the [COVID-19 US State Policy Database](www.tinyurl.com/statepolicies).
+the raw number of cases as the outcome variable can be misleading. Therefore,
+we will be using the number of cases per 100,000 residents as the outcome variable
+to normalize the population density. The population density data will 
+come from the [COVID-19 US State Policy Database](www.tinyurl.com/statepolicies).
 
-**And Finally**, we noticed that the Covid cases metric is a time-series data.
-Given that Covid symptoms typically start between 2 to 14 days after exposure[1],
-we would build in a time delay between the time of the mobility score and
-the Covid cases..
-
-We would break the time from March 2020 to March 2021 into 52 weeks, and
-stagger the mobility score and the number of cases by 1 week. Therefore the
-simplest linear model would be:
+More formally, our base model will assume a causal relationship of the form:
 $$
-total\_cases\_in\_week_{i+1} = \beta_0 + \beta_1 average\_mobility\_in\_week_i + \beta_2 population\_density
+cases\_per\_100k\_residents = \beta_0 + \beta_1 residential\_mobility\_score
 $$
+where each data point will represent a State in the U.S., and the outcome variable
+will be the total number of Covid-19 cases from March 2020 to March 2021, per
+100,000 residents for that state. And the independent variable will be the
+**average** residential mobility score of the state in the time period.
 
-For example, one specific data point would be:
-```
-x1 = average mobility score of California between 2020-03-01 and 2020-03-06
-x2 = population density of the California
-y = total number of cases in California between 2020-03-07 and 2020-03-13
-```
 
 For a more advanced model, we propose to use some control variables to assess
 the difference mobility score makes in relation to other factors, notably we'll
