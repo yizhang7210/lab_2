@@ -35,7 +35,7 @@ NYT_Data <- fread("../data/raw/us-states.csv")
 NYT_Data[,date:=as.Date(date)]
 ```
 ```{r clean_data, echo=FALSE ,message=FALSE, include=FALSE, warning=FALSE}
-min_date <- as.Date('2020-06-15')
+min_date <- as.Date('2020-02-15')
 max_date <- as.Date('2020-07-15')
 
 # The chance all five people are wearing masks in five random encounters is calculated by assuming that survey respondents who answered ‘Always’ were wearing masks all of the time, those who answered ‘Frequently’ were wearing masks 80 percent of the time, those who answered ‘Sometimes’ were wearing masks 50 percent of the time, those who answered ‘Rarely’ were wearing masks 20 percent of the time and those who answered ‘Never’ were wearing masks none of the time.
@@ -189,7 +189,7 @@ cases\_per\_100k\_residents = \beta_0 + \beta_1 residential\_mobility\_score
 $$
 where each data point will represent a State in the U.S., and the outcome variable
 will be the total number of Covid-19 cases per 100,000 residents for that state
-for a month between 2020-06-15 and 2020-07-15, when the mask wearing survey[5]
+since 2020-02-15 up until2020-07-15, when the mask wearing survey[5]
 was taken.
 And the independent variable will be the **average** residential mobility score
 of the state in the time period.
@@ -460,7 +460,7 @@ The histogram looks does not show a significant deviation from a normal distribu
 the qqplot also shows very low deviation from normality.
   
 
-```{r qqplot, echo=FALSE, fig.pos='!h', fig.height=2, message=FALSE, warning=FALSE, fig.cap='Histogram of residuals for model one and qq-plot for model one', fig.pos='!h', fig.align="center"}
+```{r qqplot, echo=FALSE, fig.pos='!h', message=FALSE, warning=FALSE, fig.cap='Histogram of residuals for model one and qq-plot for model one', fig.pos='!h', fig.align="center"}
 par(mfrow = c(1, 2))
 hist(resid(model_one), breaks=7, main='Histogram of residuals', xlab = "residuals")
 plot(model_one, which=2)
