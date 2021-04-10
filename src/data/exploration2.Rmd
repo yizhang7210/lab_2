@@ -24,34 +24,48 @@ knitr::opts_chunk$set(dpi = 300)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 ```{r get_data, echo=False ,message=FALSE, include=FALSE, warning=FALSE}
 col_names = c('STATE', 'POSTCODE', 'FIPS', 'STEMERG', 'STEMERGEND', 'CLSCHOOL', 'CLDAYCR', 'OPNCLDCR', 'CLNURSHM', 'STAYHOME', 'STAYHOMENOGP', 'END_STHM', 'CLBSNS', 'CURFEW', 'END_BSNS', 'RELIGEX', 'FM_ALL', 'FM_ALL2', 'FMFINE', 'FMCITE', 'FMNOENF', 'FM_EMP', 'FM_END', 'FM_STP', 'ALCOPEN', 'ALCREST', 'ALCDELIV', 'GUNOPEN', 'CLREST', 'ENDREST', 'RSTOUTDR', 'CLGYM', 'ENDGYM', 'CLMOVIE', 'END_MOV', 'CLOSEBAR', 'END_BRS', 'END_HAIR', 'END_RELG', 'ENDRETL', 'CURFEWEND', 'BCLBAR2', 'CLBAR2', 'CLMV2', 'CLHAIR2', 'CLGYM2', 'CLRST2', 'ENDREST2', 'END_BRS2', 'END_CLGYM2', 'END_CLMV2', 'CLBAR3', 'CLRST3', 'END_CLRST3', 'QRSOMEST', 'QR_ALLST', 'QR_END', 'VAC_PLAN', 'VAC_HCW', 'VAC_HCS', 'VAC_HHC', 'VAC_AHC', 'VAC_LTC', 'VAC_EMS', 'VAC_FF', 'VAC_LAW', 'VAC_CORR', 'VAC_INC', 'VAC_SHELTER', 'VAC_75', 'VAC_65', 'VAC_HR', 'VAC_K12', 'VAC_HIGHED', 'VAC_PT', 'VAC_FOOD', 'VAC_GROCERY', 'VAC_ESSWORK', 'VAC_ADDWORK', 'VAC_PUB', 'AGEPRIORITY', 'PROOFWORK', 'PROOFAGE', 'PROOFRES', 'PENALTY', 'EXPANDADMIN', 'EMSTART', 'EMEND', 'EMSTART2', 'EMEND2', 'EMSTART3', 'EMEND3', 'FREEZEINIT', 'LIFTINIT', 'FREEZEINIT2', 'LIFTINIT2', 'COURTCLOSE', 'COURTOPEN', 'COURTCLOSE2', 'COURTOPEN2', 'FREEZEENF', 'LIFTENF', 'FREEZEENF2', 'LIFTENF2', 'C19START', 'C19END', 'C19START2', 'C19END2', 'CARESSTART', 'CARESEND', 'CDCSTART', 'CDCEND', 'SMSTART', 'SMEND', 'SMSTART2', 'URSTART', 'UREND', 'SNAPALLO', 'SNAPEBT', 'SNAPSUSP', 'SNAPTLW', 'MED1135W', 'ACAENROL', 'PREVTLHL', 'TLHLAUD', 'TLHLMED', 'CHIPLKOT', 'LKOTSUS', 'TEST', 'CASE', 'HOSP', 'DEATH', 'VACCINE', 'TESTAIAN', 'CASEAIAN', 'HOSPAIAN', 'DEATHAIAN', 'VACCINEAIAN', 'VISITPER', 'VISITATT', 'VISITRES', 'NOCOPAY', 'NOPAYCOV', 'NOPAYALL', 'YESCOPAY', 'ELECPRCR', 'ENDELECP', 'ELECNOSTART', 'ELECPRCR2', 'ENDELECP2', 'WTPRD', 'WV_WTPRD', 'REI_WTPRD', 'WV_WKSR', 'REI_WKSR', 'UIQUAR', 'UIHIRISK', 'UICLDCR', 'UIEXTND', 'UIMAXAMT', 'UIMAXEXT', 'UIMAXDUR', 'UIMAXCAR', 'EBSTART', 'EBEND', 'TUR', 'TURPRIOR', 'TURPRIOR2', '20EBSTART', '20EBEND', 'UIMINBP', 'UIQTRNEED', 'UIOUTHQBP', 'UIREQBPL2Q', 'UIBPEARN300', 'UITAXWA', 'UIMINTAXR', 'UIMAXTAXR', 'UIAVGBFTAUG', 'LMABRN', 'TLHlBUPR', 'EXTOPFL', 'HMDLVOP', 'TLHLCL24', 'EXCEMORP', 'WVDEAREQ', 'PDSKLV', 'MEDEXP', 'POPDEN18', 'POP18', 'SQML', 'HMLS19', 'UNEMP18', 'POV18', 'RISKCOV', 'DEATH18', 'MH19', 'CASSTATE', 'AIANRESN', 'VBMEXC', 'VBMSIG', 'VBMPERM', 'VBMAUTOBAL', 'VBMAUTOAP', 'VBMGENELEC', 'CASCLOSE', 'CASOPEN', 'CASCLOSE2', 'CASOPEN2', 'CASTRIBCAS', 'MINWAGE2015', 'MINWAGE2016', 'MINWAGE2017', 'MINWAGE2018', 'MINWAGE2019', 'MINWAGEJAN2020', 'MINWAGEJUL2020', 'MINWAGESEP2020', 'MINWAGEOCT2020', 'TIPMINWAGE2020', 'MINWAGE2021', 'SMALLBUSMINWAGE')
 col_types= c('text', 'text', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'text', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric')
   
-State_Policies <- read_excel("../../data/raw/State_Policy_database.xlsx", skip = 5, col_names = col_names, col_types = col_types)
-mobility <- read_csv("../../data/raw/2020_US_Region_Mobility_Report.csv")
-
-NYT_Data <- fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
+State_Policies <- read_excel("../data/raw/State_Policy_database.xlsx", skip = 5, col_names = col_names, col_types = col_types)
+mobility_raw <- read_csv("../data/raw/2020_US_Region_Mobility_Report.csv")
+mask_use <- fread("../data/raw/mask-use-by-county.csv")
+NYT_Data <- fread("../data/raw/us-states.csv")
 NYT_Data[,date:=as.Date(date)]
-summary(NYT_Data)
+# summary(NYT_Data)
 ```
 
 
 ```{r clean_data, echo=False ,message=FALSE, include=FALSE, warning=FALSE}
-max_date <- as.Date('2021-04-05')
+min_date <- as.Date('2020-06-15')
+max_date <- as.Date('2020-07-15')
+
+# The chance all five people are wearing masks in five random encounters is calculated by assuming that survey respondents who answered ‘Always’ were wearing masks all of the time, those who answered ‘Frequently’ were wearing masks 80 percent of the time, those who answered ‘Sometimes’ were wearing masks 50 percent of the time, those who answered ‘Rarely’ were wearing masks 20 percent of the time and those who answered ‘Never’ were wearing masks none of the time.
+mask_use <- mask_use %>% mutate(
+  mask_prob = ALWAYS + FREQUENTLY * 0.8 + SOMETIMES * 0.5 + RARELY * 0.2,
+  fips = as.integer(COUNTYFP/1000),
+)
+mask_use_states <- mask_use %>% group_by(fips) %>% summarise(
+  mask_prob = mean(mask_prob),
+)
+
 cases_states <- NYT_Data
 # Yes, again to date
 cases_states$date <- as.Date(cases_states$date)
-# Group by state and window lead because `cases` is a cumulative sum of Covid19 cases
+cases_states <- cases_states %>% group_by(state) %>% mutate(
+  prev_week = lag(cases, 7, order_by=state),
+  next_week = lead(cases, 7, order_by=state),
+)
 cases_states <- cases_states[cases_states$date == max_date,]
-
 cases_states <- cases_states %>% mutate(
   total_cases = cases,
+  rate_cases = next_week/prev_week
 )
-	
+cases_states <- cases_states %>% inner_join(mask_use_states, by=c("fips"))
 
 # For mobility we need first to keep only state level data
+mobility <- mobility_raw[mobility_raw$date >= min_date & mobility_raw$date <= max_date,]
 mobility_states <- mobility %>% filter(is.na(census_fips_code))  %>% filter(!is.na(sub_region_1))
 mobility_states$state = mobility_states$sub_region_1
 # For mobility we need rolling average since we are doing weekly comparitions
@@ -87,8 +101,12 @@ policies <- State_Policies %>% mutate(
   fm_end=case_when(
     as.Date(FM_END)==as.Date('1899-12-31') ~ as.Date('2099-12-31'),
     TRUE ~ as.Date(FM_END)
-    )
-  )  %>% select(state, pop, popden, fm_start, fm_start2, fm_end)
+    ),
+  stay_home=case_when(
+    as.Date(STAYHOME)==as.Date('1899-12-31') ~ as.Date('2099-12-31'),
+    TRUE ~ as.Date(STAYHOME)
+    ),
+  )  %>% select(state, pop, popden, fm_start, fm_start2, fm_end, stay_home)
 policies <- policies[!is.na(policies$popden),]
 policies$fm_to_date <- as.numeric(max_date - policies$fm_start)
 policies$fm2_to_date <- as.numeric(max_date - policies$fm_start2)
@@ -105,6 +123,14 @@ policies <- policies %>% mutate(
   fm_end_to_date=case_when(
     fm_end_to_date < 0 ~ 0,
     TRUE ~ fm_end_to_date
+    ),
+  stay_home=case_when(
+    stay_home > max_date ~ 0,
+    TRUE ~ 1
+    ),
+  fm=case_when(
+    fm_start >= max_date ~ 0,
+    TRUE ~ 1
     )
   )
 policies$mask_days <- policies$fm_to_date - policies$fm_end_to_date + policies$fm2_to_date
@@ -114,22 +140,31 @@ policies$mask_days <- policies$fm_to_date - policies$fm_end_to_date + policies$f
 data <- cases_states %>% inner_join(mobility_states, by=c("state"))
 data <- data  %>% inner_join(policies, by=c("state"))
 data$cases_per_100k <- (data$total_cases / (data$pop)) * 100000
-
 ```
 
 
 ```{r hist_cases}
 par(mfrow = c(2, 2))
 hist(data$cases_per_100k)
-hist(data$popden)
-hist(data$mask_days)
 hist(data$residential)
+hist(data$mask_prob)
+hist(data$mask_days)
 ```
+
+```{r hist_cases}
+par(mfrow = c(2, 2))
+hist(data$workplaces)
+hist(data$parks)
+hist(data$grocery)
+hist(data$transit)
+```
+
+
 ```{r hist_logs}
 par(mfrow = c(2, 2))
 hist(log(data$cases_per_100k))
-hist(log(data$popden))
 hist(log(data$mask_days))
+hist(log(data$mask_prob))
 hist(log(data$residential))
 ```
 
@@ -139,11 +174,11 @@ hist(log(data$residential))
 # cases is cumulative
 # workplaces is the inverse of residential,
 # but the scale of residential is better suited for OLS
-p1 <- ggplot(data, aes(x=popden, y=cases_per_100k)) + 
-  geom_point(color="#69b3a2") + geom_smooth(se = FALSE)
-p2 <- ggplot(data, aes(x=mask_days, y=cases_per_100k)) + 
+p1 <- ggplot(data, aes(x=workplaces, y=cases_per_100k)) + 
   geom_point(color="#69b3a2") + geom_smooth(se = FALSE) 
-p3 <- ggplot(data, aes(x=residential, y=cases_per_100k)) + 
+p2 <- ggplot(data, aes(x=residential, y=cases_per_100k)) + 
+  geom_point(color="#69b3a2") + geom_smooth(se = FALSE)
+p3 <- ggplot(data, aes(x=grocery, y=cases_per_100k)) + 
   geom_point(color="#69b3a2") + geom_smooth(se = FALSE)
 
 p1|p2|p3
@@ -153,46 +188,117 @@ p1|p2|p3
 # cases is cumulative
 # workplaces is the inverse of residential,
 # but the scale of residential is better suited for OLS
-p1 <- ggplot(data, aes(x=log(popden), y=cases_per_100k)) + 
+p1 <- ggplot(data, aes(x=mask_days, y=log(cases_per_100k))) + 
   geom_point(color="#69b3a2") + geom_smooth(se = FALSE) # method=lm
-p2 <- ggplot(data, aes(x=I(mask_days^1), y=cases_per_100k)) + 
+p2 <- ggplot(data, aes(x=mask_prob, y=log(cases_per_100k))) + 
   geom_point(color="#69b3a2") + geom_smooth(se = FALSE) 
-p3 <- ggplot(data, aes(x=log(residential), y=cases_per_100k)) + 
+p3 <- ggplot(data, aes(x=log(residential), y=log(cases_per_100k))) + 
   geom_point(color="#69b3a2") + geom_smooth(se = FALSE)
 
 p1|p2|p3
 ```
 
-```{r scatter_plots_logs_lm}
+```{r scatter_plots_logs2}
 # cases is cumulative
 # workplaces is the inverse of residential,
 # but the scale of residential is better suited for OLS
-p1 <- ggplot(data, aes(x=log(popden), y=cases_per_100k)) + 
-  geom_point(color="#69b3a2") + geom_smooth(method=lm) # method=lm
-p2 <- ggplot(data, aes(x=I(mask_days^2), y=cases_per_100k)) + 
-  geom_point(color="#69b3a2") + geom_smooth(method=lm) 
-p3 <- ggplot(data, aes(x=log(residential), y=cases_per_100k)) + 
-  geom_point(color="#69b3a2") + geom_smooth(method=lm)
+p1 <- ggplot(data, aes(x=log(residential), y=log(cases_per_100k))) + 
+  geom_point(color="#69b3a2") + geom_smooth(se = FALSE) # method=lm
+p2 <- ggplot(data, aes(x=log(mask_prob), y=log(cases_per_100k))) + 
+  geom_point(color="#69b3a2") + geom_smooth(se = FALSE) 
+p3 <- ggplot(data, aes(x=log(residential), y=log(cases_per_100k))) + 
+  geom_point(color="#69b3a2") + geom_smooth(se = FALSE)
 
 p1|p2|p3
 ```
 
 
+```{r scatter_plots_logs_lm}
+# cases is cumulative
+# workplaces is the inverse of residential,
+# but the scale of residential is better suited for OLS
+p1 <- ggplot(data, aes(x=residential, y=cases_per_100k)) + 
+  geom_point(color="#69b3a2") + geom_smooth(method=lm) # method=lm
+p2 <- ggplot(data, aes(x=grocery, y=cases_per_100k)) + 
+  geom_point(color="#69b3a2") + geom_smooth(method=lm) 
+p3 <- ggplot(data, aes(x=mask_prob, y=cases_per_100k)) + 
+  geom_point(color="#69b3a2") + geom_smooth(method=lm)
 
-```{r simple_model}
-model_one <- lm(cases_per_100k ~ log(residential) , data=data)
+p1|p2|p3
+```
+
+```{r scatter_plots_logs_lm2}
+# cases is cumulative
+# workplaces is the inverse of residential,
+# but the scale of residential is better suited for OLS
+p1 <- ggplot(data, aes(x=log(popden), y=log(cases_per_100k))) + 
+  geom_point(color="#69b3a2") + geom_smooth(method=lm) # method=lm
+p2 <- ggplot(data, aes(x=log(mask_prob), y=log(cases_per_100k))) + 
+  geom_point(color="#69b3a2") + geom_smooth(method=lm) 
+p3 <- ggplot(data, aes(x=log(residential), y=log(cases_per_100k))) + 
+  geom_point(color="#69b3a2") + geom_smooth(method=lm)
+
+p1|p2|p3
+```
+
+```{r simple_model_a}
+model_one <- lm(log(rate_cases) ~ log(popden) , data=data)
 summary(model_one)
 ```
 
-```{r model_popden}
-model_two <- lm(cases_per_100k ~ log(residential) + log(popden) , data=data)
+```{r simple_model_b}
+model_one <- lm(cases_per_100k ~ residential, data=data)
+summary(model_one)
+```
+```{r simple_model_c}
+model_one <- lm(cases_per_100k ~ mask_prob , data=data)
+summary(model_one)
+```
+
+```{r simple_model_d}
+model_one <- lm(cases_per_100k ~ residential + mask_prob, data=data)
+summary(model_one)
+```
+
+
+```{r model_fm_a}
+model_two <- lm(cases_per_100k ~ residential + fm, data=data)
 summary(model_two)
 ```
 
-```{r model_facemask}
-model_three <- lm(cases_per_100k ~ log(residential) + log(popden) + log(mask_days+1) , data=data)
+```{r model_fm_a_1_2}
+model_two <- lm(cases_per_100k ~ residential + mask_prob + fm + stay_home, data=data)
+summary(model_two)
+```
+
+
+```{r model_fm_a_2}
+model_two <- lm(cases_per_100k ~ residential + parks, data=data)
+summary(model_two)
+```
+```{r model_fm_a_2}
+model_two <- lm(cases_per_100k ~ residential + grocery, data=data)
+summary(model_two)
+```
+
+
+
+```{r model_mobilityplus}
+
+model_three <- lm(cases_per_100k ~ residential+ parks + grocery+ mask_prob + fm , data=data)
 summary(model_three)
 ```
+
+
+```{r model_mobilityplus}
+
+minmax <- function(x){ ((x-min(x))/(max(x)-min(x))) + 0.0001 }
+model_three <- lm(log(rate_cases) ~ residential + workplaces + parks + grocery, data=data)
+summary(model_three)
+```
+
+
+
 
 
 ```{r residuals, echo=FALSE, fig.pos='!h', fig.height=3, message=FALSE, warning=FALSE}

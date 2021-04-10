@@ -19,7 +19,7 @@ col_names = c('STATE', 'POSTCODE', 'FIPS', 'STEMERG', 'STEMERGEND', 'CLSCHOOL', 
 col_types= c('text', 'text', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'text', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric')
   
 State_Policies <- read_excel("../../data/raw/State_Policy_database.xlsx", skip = 5, col_names = col_names, col_types = col_types)
-mobility <- read_csv("../../data/raw/2020_US_Region_Mobility_Report.csv")
+mobility_raw <- read_csv("../../data/raw/2020_US_Region_Mobility_Report.csv")
 
 NYT_Data <- fread("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
 NYT_Data[,date:=as.Date(date)]
@@ -28,14 +28,17 @@ summary(NYT_Data)
 
 
 ```{r clean_data, echo=TRUE}
+
+min_date <- as.Date('2020-05-01')
+max_date <- as.Date('2020-09-15')
 cases_states <- NYT_Data
 # Yes, again to date
 cases_states$date <- as.Date(cases_states$date)
 # Group by state and window lead because `cases` is a cumulative sum of Covid19 cases
 cases_states <- cases_states %>% group_by(state) %>% mutate(
   prev_week = lag(cases, 7, order_by=state),  # delete if not used
-  next_week = lead(cases, 7, order_by=state),
-  next_2week = lead(cases, 14, order_by=state),  # delete if not used
+  next_week = lead(cases, 35, order_by=state),
+  next_2week = lead(cases, 42, order_by=state),  # delete if not used
 )
 cases_states$delta14_cases <- cases_states$next_2week - cases_states$next_week
 cases_states$delta7_cases <- cases_states$next_week - cases_states$cases
@@ -43,11 +46,14 @@ cases_states <- cases_states[!is.na(cases_states$delta7_cases),]
 cases_states <- cases_states[!is.na(cases_states$delta14_cases),]
 cases_states$dow <- weekdays(as.Date(cases_states$date))
 # this is also a possible candidate for the model
-cases_states$rate_cases <- cases_states$next_week/cases_states$cases
+cases_states$rate_cases <- cases_states$cases/cases_states$prev_week
+cases_states$rate_cases_prev <- cases_states$cases/cases_states$prev_week
+cases_states$rate_cases_next <- cases_states$next_week/cases_states$cases
 cases_states$rate_cases2w <- cases_states$next_2week/cases_states$next_week
-cases_states <- cases_states[!is.na(cases_states$rate_cases),]
+# cases_states <- cases_states[!is.na(cases_states$rate_cases),]
 
 # For mobility we need first to keep only state level data
+mobility <- mobility_raw[mobility_raw$date >= min_date & mobility_raw$date <= max_date,]
 mobility_states <- mobility %>% filter(is.na(census_fips_code))  %>% filter(!is.na(sub_region_1))
 mobility_states$state = mobility_states$sub_region_1
 # For mobility we need rolling average since we are doing weekly comparitions
@@ -98,7 +104,7 @@ summary(weekly)
 
 
 # Let's create datasets for california for plots
-california <- data[data$state == 'California',]
+california <- data[data$state == 'Texas',]
 california <- california[california$date > '2020-03-30',]
 
 california_weekly <- weekly[weekly$state == 'California',]
@@ -116,11 +122,13 @@ hist(california_weekly$rate_cases)
 # cases is cumulative
 # workplaces is the inverse of residential,
 # but the scale of residential is better suited for OLS
-p1 <- ggplot(california, aes(x=date, y=cases)) + geom_line(color="#69b3a2") + xlab("")
-p2 <- ggplot(california, aes(x=date, y=workplaces_ra7)) + geom_line(color="#69b3a2") + xlab("")
+p1 <- ggplot(california, aes(x=date, y=rate_cases_prev)) + geom_line(color="#69b3a2") + xlab("")
+p11 <- ggplot(california, aes(x=date, y=rate_cases_next)) + geom_line(color="#69b3a2") + xlab("")
+p12 <- ggplot(california, aes(x=date, y=rate_cases2w)) + geom_line(color="#69b3a2") + xlab("")
+#p2 <- ggplot(california, aes(x=date, y=workplaces_ra7)) + geom_line(color="#69b3a2") + xlab("")
 p3 <- ggplot(california, aes(x=date, y=residential_ra7)) + geom_line(color="#69b3a2") + xlab("")
 
-p1/p2/p3
+p1/p11/p12/p3
 ```
 
 ```{r california_cases_weekly}
