@@ -50,14 +50,9 @@ mask_use_states <- mask_use %>% group_by(fips) %>% summarise(
 cases_states <- NYT_Data
 # Yes, again to date
 cases_states$date <- as.Date(cases_states$date)
-cases_states <- cases_states %>% group_by(state) %>% mutate(
-  prev_week = lag(cases, 7, order_by=state),
-  next_week = lead(cases, 7, order_by=state),
-)
 cases_states <- cases_states[cases_states$date == max_date,]
 cases_states <- cases_states %>% mutate(
-  total_cases = cases,
-  rate_cases = next_week/prev_week
+  total_cases = cases
 )
 cases_states <- cases_states %>% inner_join(mask_use_states, by=c("fips"))
 
@@ -65,7 +60,7 @@ cases_states <- cases_states %>% inner_join(mask_use_states, by=c("fips"))
 mobility <- mobility_raw[mobility_raw$date >= min_date & mobility_raw$date <= max_date,]
 mobility_states <- mobility %>% filter(is.na(census_fips_code))  %>% filter(!is.na(sub_region_1))
 mobility_states$state = mobility_states$sub_region_1
-# For mobility we need rolling average since we are doing weekly comparitions
+
 mobility_states <- mobility_states %>% mutate(
   workplaces_percent_change_from_baseline=replace_na(workplaces_percent_change_from_baseline, 0),
   transit_stations_percent_change_from_baseline=replace_na(transit_stations_percent_change_from_baseline, 0),
@@ -142,7 +137,6 @@ data <- data %>% select(state, cases_per_100k, workplaces, transit, parks, groce
 ```
 
 
-
 # Introduction
 
 ### Overview
@@ -176,20 +170,18 @@ knitr::include_graphics("./Basic-Causal-Theory.png")
 To operationalize the research question, we propose the following plan for the
 causal models.
 
-**Firstly**, we will use the [New York Times](https://github.com/nytimes/covid-19-data)
-Covid-19 data for the number of Covid cases per State. And we will use the
-[COVID-19 Community Mobility Report](https://www.google.com/covid19/mobility/)
+**Firstly**, we will use the New York Times[2] Covid-19 data for the number of
+Covid cases per State. And we will use the Covid-19 Community Mobility Report[3]
 for the population mobility scores. For the base model, we will use the "residential
 mobility score" as a relatively stable representative of the general population's
-social mobility. We will also use [Mask-Wearing survey](https://github.com/nytimes/covid-19-data/blob/master/mask-use/README.md)
-data from the New York Times as a control variable.
+social mobility.
 
 **Secondly**, mobility have drastically different effect on the spread
 of the virus depending on the population density. Thus, we believe that having
 the raw number of cases as the outcome variable can be misleading. Therefore,
 we will be using the number of cases per 100,000 residents as the outcome variable
 to normalize the population density. The population density data will 
-come from the [COVID-19 US State Policy Database](www.tinyurl.com/statepolicies).
+come from the COVID-19 US State Policy Database[4].
 
 More formally, our base model will assume a causal relationship of the form:
 $$
@@ -197,9 +189,15 @@ cases\_per\_100k\_residents = \beta_0 + \beta_1 residential\_mobility\_score
 $$
 where each data point will represent a State in the U.S., and the outcome variable
 will be the total number of Covid-19 cases per 100,000 residents for that state
-from March 2020 up until to July 2020, when the mask wearing survey was taken.
-. And the independent variable will be the
-**average** residential mobility score of the state in the time period.
+for a month between 2020-06-15 and 2020-07-15, when the mask wearing survey[5]
+was taken.
+And the independent variable will be the **average** residential mobility score
+of the state in the time period.
+
+For a more advanced model, we propose to use some control variables to assess
+the difference mobility score makes in relation to other factors, notably we'll
+include whether the "Stay at Home" order is in effect and whether the face mask
+policy is in effect and how long has been in place.
 
 The mask wearing survey data will be operationalized by transforming it into probability of
 people wearing mask. The probability of people wears masks is calculated by assuming 
@@ -209,13 +207,8 @@ those who answered ‘Sometimes’ were wearing masks 50 percent of the time,
 those who answered ‘Rarely’ were wearing masks 20 percent of the time and 
 those who answered ‘Never’ were wearing masks none of the time.
 
-For a more advanced model, we propose to use some control variables to assess
-the difference mobility score makes in relation to other factors, notably we'll
-include whether the "Stay at Home" order is in effect and whether the face mask
-policy is in effect and how long has been in place.
-
 For the most inclusive model, we will explore all the other mobility scores,
-including to workplaces, parks, grocery & pharmacy, as well as retail & recreation.
+including to workplaces, transit, parks, grocery & pharmacy.
 
 
 # The models
@@ -225,13 +218,12 @@ including to workplaces, parks, grocery & pharmacy, as well as retail & recreati
 
 ```{r summary, echo=FALSE, fig.align="center", out.width="90%", fig.cap="Data Summary"}
 summary(data)
-
 ```
 
 All the variables have their means and medians very close to each other, that suggests
 that there is no severe skewness.
 
-The histogram plots bellow shows no major deviation from normality for the variables.
+The histogram plots below shows no major deviation from normality for the variables.
 
 ```{r hist_cases, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Histograms of the left-hand side variable and selected right-hand side variables', fig.pos='!h', fig.align="center"}
 par(mfrow = c(2, 2))
@@ -519,7 +511,12 @@ seen is omitted.
 ## References:
 ```
 [1]: https://www.cdc.gov/coronavirus/2019-ncov/faq.html
+[2]: https://github.com/nytimes/covid-19-data
+[3]: https://www.google.com/covid19/mobility
+[4]: https://www.tinyurl.com/statepolicies
+[5]: https://github.com/nytimes/covid-19-data/blob/master/mask-use
 ```
+
 
 
 
