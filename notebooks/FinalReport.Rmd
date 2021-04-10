@@ -24,7 +24,7 @@ knitr::opts_chunk$set(dpi = 300)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r get_data, echo=False ,message=FALSE, include=FALSE, warning=FALSE}
+```{r get_data, echo=FALSE ,message=FALSE, include=FALSE, warning=FALSE}
 col_names = c('STATE', 'POSTCODE', 'FIPS', 'STEMERG', 'STEMERGEND', 'CLSCHOOL', 'CLDAYCR', 'OPNCLDCR', 'CLNURSHM', 'STAYHOME', 'STAYHOMENOGP', 'END_STHM', 'CLBSNS', 'CURFEW', 'END_BSNS', 'RELIGEX', 'FM_ALL', 'FM_ALL2', 'FMFINE', 'FMCITE', 'FMNOENF', 'FM_EMP', 'FM_END', 'FM_STP', 'ALCOPEN', 'ALCREST', 'ALCDELIV', 'GUNOPEN', 'CLREST', 'ENDREST', 'RSTOUTDR', 'CLGYM', 'ENDGYM', 'CLMOVIE', 'END_MOV', 'CLOSEBAR', 'END_BRS', 'END_HAIR', 'END_RELG', 'ENDRETL', 'CURFEWEND', 'BCLBAR2', 'CLBAR2', 'CLMV2', 'CLHAIR2', 'CLGYM2', 'CLRST2', 'ENDREST2', 'END_BRS2', 'END_CLGYM2', 'END_CLMV2', 'CLBAR3', 'CLRST3', 'END_CLRST3', 'QRSOMEST', 'QR_ALLST', 'QR_END', 'VAC_PLAN', 'VAC_HCW', 'VAC_HCS', 'VAC_HHC', 'VAC_AHC', 'VAC_LTC', 'VAC_EMS', 'VAC_FF', 'VAC_LAW', 'VAC_CORR', 'VAC_INC', 'VAC_SHELTER', 'VAC_75', 'VAC_65', 'VAC_HR', 'VAC_K12', 'VAC_HIGHED', 'VAC_PT', 'VAC_FOOD', 'VAC_GROCERY', 'VAC_ESSWORK', 'VAC_ADDWORK', 'VAC_PUB', 'AGEPRIORITY', 'PROOFWORK', 'PROOFAGE', 'PROOFRES', 'PENALTY', 'EXPANDADMIN', 'EMSTART', 'EMEND', 'EMSTART2', 'EMEND2', 'EMSTART3', 'EMEND3', 'FREEZEINIT', 'LIFTINIT', 'FREEZEINIT2', 'LIFTINIT2', 'COURTCLOSE', 'COURTOPEN', 'COURTCLOSE2', 'COURTOPEN2', 'FREEZEENF', 'LIFTENF', 'FREEZEENF2', 'LIFTENF2', 'C19START', 'C19END', 'C19START2', 'C19END2', 'CARESSTART', 'CARESEND', 'CDCSTART', 'CDCEND', 'SMSTART', 'SMEND', 'SMSTART2', 'URSTART', 'UREND', 'SNAPALLO', 'SNAPEBT', 'SNAPSUSP', 'SNAPTLW', 'MED1135W', 'ACAENROL', 'PREVTLHL', 'TLHLAUD', 'TLHLMED', 'CHIPLKOT', 'LKOTSUS', 'TEST', 'CASE', 'HOSP', 'DEATH', 'VACCINE', 'TESTAIAN', 'CASEAIAN', 'HOSPAIAN', 'DEATHAIAN', 'VACCINEAIAN', 'VISITPER', 'VISITATT', 'VISITRES', 'NOCOPAY', 'NOPAYCOV', 'NOPAYALL', 'YESCOPAY', 'ELECPRCR', 'ENDELECP', 'ELECNOSTART', 'ELECPRCR2', 'ENDELECP2', 'WTPRD', 'WV_WTPRD', 'REI_WTPRD', 'WV_WKSR', 'REI_WKSR', 'UIQUAR', 'UIHIRISK', 'UICLDCR', 'UIEXTND', 'UIMAXAMT', 'UIMAXEXT', 'UIMAXDUR', 'UIMAXCAR', 'EBSTART', 'EBEND', 'TUR', 'TURPRIOR', 'TURPRIOR2', '20EBSTART', '20EBEND', 'UIMINBP', 'UIQTRNEED', 'UIOUTHQBP', 'UIREQBPL2Q', 'UIBPEARN300', 'UITAXWA', 'UIMINTAXR', 'UIMAXTAXR', 'UIAVGBFTAUG', 'LMABRN', 'TLHlBUPR', 'EXTOPFL', 'HMDLVOP', 'TLHLCL24', 'EXCEMORP', 'WVDEAREQ', 'PDSKLV', 'MEDEXP', 'POPDEN18', 'POP18', 'SQML', 'HMLS19', 'UNEMP18', 'POV18', 'RISKCOV', 'DEATH18', 'MH19', 'CASSTATE', 'AIANRESN', 'VBMEXC', 'VBMSIG', 'VBMPERM', 'VBMAUTOBAL', 'VBMAUTOAP', 'VBMGENELEC', 'CASCLOSE', 'CASOPEN', 'CASCLOSE2', 'CASOPEN2', 'CASTRIBCAS', 'MINWAGE2015', 'MINWAGE2016', 'MINWAGE2017', 'MINWAGE2018', 'MINWAGE2019', 'MINWAGEJAN2020', 'MINWAGEJUL2020', 'MINWAGESEP2020', 'MINWAGEOCT2020', 'TIPMINWAGE2020', 'MINWAGE2021', 'SMALLBUSMINWAGE')
 col_types= c('text', 'text', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'text', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'text', 'date', 'date', 'date', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'date', 'date', 'date', 'date', 'date', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric', 'numeric')
   
@@ -34,7 +34,7 @@ mask_use <- fread("../data/raw/mask-use-by-county.csv")
 NYT_Data <- fread("../data/raw/us-states.csv")
 NYT_Data[,date:=as.Date(date)]
 ```
-```{r clean_data, echo=False ,message=FALSE, include=FALSE, warning=FALSE}
+```{r clean_data, echo=FALSE ,message=FALSE, include=FALSE, warning=FALSE}
 min_date <- as.Date('2020-06-15')
 max_date <- as.Date('2020-07-15')
 
@@ -263,7 +263,7 @@ By looking at the scatter plots we can notice that `workplaces` is the inverse o
 Using both in a OLS regression probably will cause the coefficients to cancel each other.
 The `residential` variable shows promising results, it looks like it has a very linear relationship with `cases_per_100k`.
 
-```{r scatter_plots, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scatter Plots for Cases per 100k and selected mobility variables', fig.pos='!h' fig.align="center"}
+```{r scatter_plots, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scatter Plots for Cases per 100k and selected mobility variables', fig.pos='!h', fig.align="center"}
 # cases is cumulative
 # workplaces is the inverse of residential,
 # but the scale of residential is better suited for OLS
@@ -346,7 +346,7 @@ Although by looking at the scatter plot of Cases per 100k and mask wearing proba
 there is no clear relationship, and the slope of the OLS line has the opposite direction to
 what our intuition tell us.
 
-```{r mask_prob, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scatter Plots for Cases per 100k and mask wearing probability, fig.pos='!h' fig.align="center"}
+```{r mask_prob, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scatter Plots for Cases per 100k and mask wearing probability', fig.pos='!h', fig.align="center"}
 # cases is cumulative
 # workplaces is the inverse of residential,
 # but the scale of residential is better suited for OLS
@@ -443,7 +443,7 @@ None of the variables seem to violate IID.
 By looking at the predicted vs. residuals of the model it looks that relationship 
 is very linear.
 
-```{r residuals, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Residuals vs Fitted plot for Model One', fig.pos='!h' fig.align="center"}
+```{r residuals, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Residuals vs Fitted plot for Model One', fig.pos='!h', fig.align="center"}
 plot(model_one, which = 1)
 ```
 
@@ -459,7 +459,7 @@ None of the coefficients was dropped, that means there is no Perfect Collinearit
 
 The scale-location plot is very close to a flat line, which lead us to believe that there is no major issues with heteroskedasticity.
 
-```{r, echo=FALSE, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scale-Location plot for Model One', fig.pos='!h' fig.align="center"}
+```{r scale_location, echo=FALSE, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scale-Location plot for Model One', fig.pos='!h', fig.align="center"}
 plot(model_one, which=3)
 ```
 ####  5. Normally Distributed Errors
@@ -467,14 +467,15 @@ plot(model_one, which=3)
 The histogram looks does not show a significant deviation from a normal distribution and
 the qqplot also shows very low deviation from normality.
   
-  
-In general we can say that all the 5 CLM Assumptions are met.
 
-```{r nde, echo=FALSE, fig.pos='!h', fig.height=2, message=FALSE, warning=FALSE, fig.cap='Histogram of residuals for model one and qq-plot for model one', fig.pos='!h' fig.align="center"}
+```{r qqplot, echo=FALSE, fig.pos='!h', fig.height=2, message=FALSE, warning=FALSE, fig.cap='Histogram of residuals for model one and qq-plot for model one', fig.pos='!h', fig.align="center"}
 par(mfrow = c(1, 2))
 hist(resid(model_one), breaks=7, main='Histogram of residuals', xlab = "residuals")
 plot(model_one, which=2)
 ```
+
+  
+In general we can say that all the 5 CLM Assumptions are met.
 
 ### The Regression Table
 
