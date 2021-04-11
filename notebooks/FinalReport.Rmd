@@ -17,6 +17,7 @@ library(lubridate)
 library(patchwork)
 library("data.table")
 library(readxl)
+library(stargazer)
 library(readr)
 library(zoo)
 theme_set(theme_minimal())
@@ -39,12 +40,22 @@ min_date <- as.Date('2020-02-15')
 max_date <- as.Date('2020-07-15')
 
 # The chance all five people are wearing masks in five random encounters is calculated by assuming that survey respondents who answered ‘Always’ were wearing masks all of the time, those who answered ‘Frequently’ were wearing masks 80 percent of the time, those who answered ‘Sometimes’ were wearing masks 50 percent of the time, those who answered ‘Rarely’ were wearing masks 20 percent of the time and those who answered ‘Never’ were wearing masks none of the time.
+county_populations <- read.csv('../data/raw/county-population.csv')
+county_populations <- county_populations %>%
+  select(FIPStxt, POP_ESTIMATE_2019) %>%
+  mutate(population = as.numeric(gsub(",", "", POP_ESTIMATE_2019)))
+county_populations$COUNTYFP <- county_populations$FIPStxt
+
 mask_use <- mask_use %>% mutate(
   mask_prob = ALWAYS + FREQUENTLY * 0.8 + SOMETIMES * 0.5 + RARELY * 0.2,
   fips = as.integer(COUNTYFP/1000),
+) %>% inner_join(county_populations, by=c("COUNTYFP"))
+mask_use <- mask_use %>% mutate(
+  masked_population = mask_prob * population
 )
+
 mask_use_states <- mask_use %>% group_by(fips) %>% summarise(
-  mask_prob = mean(mask_prob),
+  mask_prob = sum(masked_population) / sum(population),
 )
 
 cases_states <- NYT_Data
@@ -61,17 +72,12 @@ mobility <- mobility_raw[mobility_raw$date >= min_date & mobility_raw$date <= ma
 mobility_states <- mobility %>% filter(is.na(census_fips_code))  %>% filter(!is.na(sub_region_1))
 mobility_states$state = mobility_states$sub_region_1
 
-mobility_states <- mobility_states %>% mutate(
-  workplaces_percent_change_from_baseline=replace_na(workplaces_percent_change_from_baseline, 0),
-  transit_stations_percent_change_from_baseline=replace_na(transit_stations_percent_change_from_baseline, 0),
-  residential_percent_change_from_baseline=replace_na(residential_percent_change_from_baseline, 0),
-  grocery_and_pharmacy_percent_change_from_baseline=replace_na(grocery_and_pharmacy_percent_change_from_baseline, 0),
-)
 mobility_states <- mobility_states %>% group_by(state) %>% summarise(
-  workplaces = mean(workplaces_percent_change_from_baseline),
-  transit = mean(transit_stations_percent_change_from_baseline),
-  residential = mean(residential_percent_change_from_baseline),
-  grocery = mean(grocery_and_pharmacy_percent_change_from_baseline),
+  workplaces = mean(workplaces_percent_change_from_baseline, na.rm = TRUE),
+  transit = mean(transit_stations_percent_change_from_baseline, na.rm = TRUE),
+  residential = mean(residential_percent_change_from_baseline, na.rm = TRUE),
+  grocery = mean(grocery_and_pharmacy_percent_change_from_baseline, na.rm = TRUE),
+  parks = mean(parks_percent_change_from_baseline, na.rm = TRUE)
 )
 
 
@@ -130,8 +136,8 @@ policies$mask_days <- policies$fm_to_date - policies$fm_end_to_date + policies$f
 data <- cases_states %>% inner_join(mobility_states, by=c("state"))
 data <- data %>% inner_join(policies, by=c("state"))
 data$cases_per_100k <- (data$total_cases / (data$pop)) * 100000
-data <- data %>% select(state, cases_per_100k, workplaces, transit, grocery,
-                        residential, stay_home, fm, mask_prob, mask_days)
+data <- data %>% select(state, cases_per_100k, workplaces, transit, grocery, popden,
+                        parks, residential, stay_home, fm, mask_prob, mask_days)
 ```
 
 
@@ -212,7 +218,6 @@ including to workplaces, transit, grocery & pharmacy.
 # The models
 
 ### Data Exploration
-
 
 ```{r summary, echo=FALSE, fig.align="center", out.width="90%", fig.cap="Data Summary"}
 summary(data)
@@ -304,7 +309,7 @@ $$
 cases\_per\_100k\_residents = \beta_0 + \beta_1 residential\_mobility\_score + \beta_2 mask\_wearing\_probability
 $$
 ```{r model_two, echo=FALSE, message=FALSE, warning=FALSE}
-model_two <- lm(cases_per_100k ~ residential + mask_prob + fm , data=data)
+model_two <- lm(cases_per_100k ~ residential + log(popden) + mask_prob, data=data)
 summary(model_two)
 ```
 
@@ -317,18 +322,6 @@ it looked that it acted in the opposite direction than residential. When we test
 variable alone we confirmed our intuition, the workplaces mobility score is also significant
 but acts in the opposite direction than residential.
 
-When both are present residential still has a more significant effect. And the coefficient
-for workplaces mobility score is significantly lower and in the opposite direction than the previous model.
-
-$$
-cases\_per\_100k\_residents = \beta_0 + \beta_1 residential\_mobility\_score + \beta_2 workplaces\_mobility\_score
-$$
-
-```{r model_three_alt, echo=FALSE, message=FALSE, warning=FALSE}
-model_three_alt <- lm(cases_per_100k ~ residential + workplaces, data=data)
-summary(model_three_alt)
-```
-
 Our definitive third model is the comparison of all the mobility score variables,
 with the exception of the workplaces variable since it's the opposite of residential.
 The residential mobility score captures the information contained in the other mobility variables.
@@ -338,16 +331,20 @@ $$
 cases\_per\_100k\_residents = \beta_0 + \beta_1 residential\_mobility\_score + \beta_2 parks\_mobility\_score + \beta_3 grocery\_mobility\_score+ \beta_4 transit\_mobility\_score
 $$
 ```{r model_three, echo=FALSE, message=FALSE, warning=FALSE}
-model_three <- lm(cases_per_100k ~ residential + workplaces + grocery + transit + fm , data=data)
+model_three <- lm(cases_per_100k ~ log(popden)  + mask_prob + residential + parks + grocery + transit, data=data)
 summary(model_three)
 ```
 
 
 ### The Regression Table
+``` {r echo=FALSE, message=FALSE, warning=FALSE, results='asis', header=FALSE}
+stargazer::stargazer(model_one, model_two, model_three, 
+  title = 'Comparisoin of Regression Models')
+```
 
 # Model Limitations
 
-TimeSeries: 
+Time Series: 
 
 The Research Question under study is well suited for a time series analysis. The
 initial discussion and work, were poised to well take off in including a weekly 
