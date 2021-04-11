@@ -473,6 +473,8 @@ In general we can say that all the 5 CLM Assumptions are met.
 
 # Model Limitations
 
+TimeSeries: 
+
 The Research Question under study is well suited for a time series analysis. The
 initial discussion and work, were poised to well take off in including a weekly 
 average and correlation with the cases offset by couple of weeks. As per the 
@@ -480,23 +482,12 @@ instruction and the limited machinery in place, the team has decided to take
 an average for the states from a time window where all the variables were produced
 and use it in the model.
 
-### Classic Linear Model assessment
+Reverse Causality:
 
-### Omitted Variables
+The Research Question under study finds relationship between Mobility and COVID
+cases. But, there is also the reverse path where more COVID cases creates fear
+among people. Thus,people limiting outdoor activities. 
 
-Diligently practicing mandates:
-
-Though, State and County put restrictions, including Mask mandate, Curfew, 
-Social distance, Quarantine, park, school and restaurant closures, how much general 
-public abide to these mandates is a very good [Omitted] indicator that influence 
-the total cases.
-
-International/Non-Local Mobility:
-
-As we all know Port of Entries like New York, San Francisco, Chicago and Seattle
-are the first affected places. State wide policies restricting mobility has varying
-effects on how close a location is to the airport or other transit points. Thus,
-closeness to transit stations and airport is an omitted variable.
 
 All Percent drops are not equal:
 
@@ -504,6 +495,29 @@ A 10% drop in mobility is really good for sparsely populated regions to go below
 a certain threshold in transmitting the virus. The same cannot be applied to 
 densely populated cities. Thus, the non-linearity in the measures taken vs impact 
 seen is omitted.
+
+
+### Classic Linear Model assessment
+
+# Omitted Variables
+
+Not following mandates:
+
+Though, State and County put restrictions, including Mask mandate, Curfew, 
+Social distance, Quarantine, park, school and restaurant closures, how much general 
+public abide to these mandates is a very good [Omitted] indicator that influence 
+the total cases. The omitted variable positively impacts outcome and positively
+related with measured variable, thus moving away from zero.
+
+International/Non-Local Mobility:
+
+As we all know Port of Entries like New York, San Francisco, Chicago and Seattle
+are the first affected places. State wide policies restricting mobility has varying
+effects on how close a location is to the airport or other transit points. Thus,
+closeness to transit stations and airport is an omitted variable. The omitted 
+variable positively impacts outcome and positively related with measured 
+variable, thus moving away from zero.
+
 
 # Conclusion
 
