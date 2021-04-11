@@ -194,7 +194,7 @@ was taken.
 And the independent variable will be the **average** residential mobility score
 of the state in the time period.
 
-For a more advanced model, we propose to use some control variables to assess
+**Finally**, for a more advanced model, we propose to use some control variables to assess
 the difference mobility score makes in relation to other factors, notably we'll
 include whether the "Stay at Home" order is in effect and whether the face mask
 policy is in effect and how long has been in place.
@@ -229,7 +229,7 @@ The histogram plots below shows no major deviation from normality for the variab
 par(mfrow = c(2, 2))
 hist(data$cases_per_100k, main='Cases per 100k', xlab = "cases_per_100k")
 hist(data$residential, main='Residential Mobility Score', xlab = "residential")
-hist(data$mask_prob, main='Probality of Mask Wearing', xlab = "mask_prob")
+hist(data$mask_prob, main='Probability of Mask Wearing', xlab = "mask_prob")
 hist(data$mask_days, main='Days of Mask Mandate enactment', xlab = "mask_days")
 ```
 The other mobility variables also doesn't show major deviation from normality.
@@ -247,7 +247,7 @@ We will continue the analysis without the transformation.
 par(mfrow = c(2, 2))
 hist(log(data$cases_per_100k), main='Cases per 100k', xlab = "log(cases_per_100k)")
 hist(log(data$residential), main='Residential Mobility Score', xlab = "log(residential)")
-hist(log(data$mask_prob), main='Probality of Mask Wearing', xlab = "log(mask_problog)")
+hist(log(data$mask_prob), main='Probability of Mask Wearing', xlab = "log(mask_problog)")
 hist(log(data$mask_days), main='Days of Mask Mandate enactment', xlab = "log(mask_days)")
 ```
 
@@ -424,7 +424,34 @@ summary(model_three_final)
 ```
 
 
-### CLM assumptions
+### The Regression Table
+
+# Model Limitations
+
+TimeSeries: 
+
+The Research Question under study is well suited for a time series analysis. The
+initial discussion and work, were poised to well take off in including a weekly 
+average and correlation with the cases offset by couple of weeks. As per the 
+instruction and the limited machinery in place, the team has decided to take 
+an average for the states from a time window where all the variables were produced
+and use it in the model.
+
+Reverse Causality:
+
+The Research Question under study finds relationship between Mobility and COVID
+cases. But, there is also the reverse path where more COVID cases creates fear
+among people. Thus, people limiting outdoor activities. 
+
+
+All Percent drops are not equal:
+
+A 10% drop in mobility is really good for sparsely populated regions to go below
+a certain threshold in transmitting the virus. The same cannot be applied to 
+densely populated cities. Thus, the non-linearity in the measures taken vs impact 
+seen is omitted.
+
+### Classic Linear Model assumptions
 
 #### 1. IID Sampling 
   
@@ -468,36 +495,6 @@ plot(model_one, which=2)
 
   
 In general we can say that all the 5 CLM Assumptions are met.
-
-### The Regression Table
-
-# Model Limitations
-
-TimeSeries: 
-
-The Research Question under study is well suited for a time series analysis. The
-initial discussion and work, were poised to well take off in including a weekly 
-average and correlation with the cases offset by couple of weeks. As per the 
-instruction and the limited machinery in place, the team has decided to take 
-an average for the states from a time window where all the variables were produced
-and use it in the model.
-
-Reverse Causality:
-
-The Research Question under study finds relationship between Mobility and COVID
-cases. But, there is also the reverse path where more COVID cases creates fear
-among people. Thus,people limiting outdoor activities. 
-
-
-All Percent drops are not equal:
-
-A 10% drop in mobility is really good for sparsely populated regions to go below
-a certain threshold in transmitting the virus. The same cannot be applied to 
-densely populated cities. Thus, the non-linearity in the measures taken vs impact 
-seen is omitted.
-
-
-### Classic Linear Model assessment
 
 # Omitted Variables
 
