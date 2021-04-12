@@ -1,7 +1,9 @@
 ---
 title: "How much did restricting mobility help in controlling the spread of COVID?"
 author: 'Satheesh Joseph, Paco Valdez, Yi Zhang'
-output: pdf_document
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
 ---
 
 ```{r load_packages, message=FALSE, include=FALSE, warning=FALSE}
@@ -10,7 +12,9 @@ library(ggplot2)
 library(sandwich)
 library(lmtest)
 library(fec16)
+library(qwraps2)
 library(dplyr)
+library(gridExtra)
 library(hrbrthemes)
 # Load the package
 library(lubridate)
@@ -21,6 +25,7 @@ library(stargazer)
 library(readr)
 library(zoo)
 theme_set(theme_minimal())
+options(qwraps2_markup = "markdown")
 knitr::opts_chunk$set(dpi = 300)
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -116,7 +121,7 @@ policies <- policies %>% mutate(
     stay_home > max_date ~ 0,
     TRUE ~ 1
     ),
-  fm=case_when(
+  mask_policy=case_when(
     fm_start >= max_date ~ 0,
     TRUE ~ 1
     )
@@ -128,8 +133,8 @@ policies$mask_days <- policies$fm_to_date - policies$fm_end_to_date + policies$f
 data <- cases_states %>% inner_join(mobility_states, by=c("state"))
 data <- data %>% inner_join(policies, by=c("state"))
 data$cases_per_100k <- (data$total_cases / (data$pop)) * 100000
-data <- data %>% select(state, cases_per_100k, workplaces, transit, grocery, popden,
-                        pop, parks, residential, stay_home, fm, mask_prob, mask_days)
+data <- data %>% select(state, cases_per_100k, workplaces, transit, grocery,
+                        parks, residential, mask_policy, mask_prob)
 ```
 
 
@@ -192,11 +197,11 @@ of the state in the same time period.
 
 **Finally**, for a more advanced model, we propose to use some control variables to assess
 the difference mobility score makes in relation to other factors, notably we'll
-include whether the "Stay at Home" order is in effect and whether the face mask
-policy is in effect and how long has been in place.
+include two factors about facial masks. One is the probability of someone wearing
+a mask, gathered from New York Time county level data, and the other is whether
+the mask wearing mandate has been in place for the state.
 
-The mask wearing survey data will be operationalized by transforming it into probability of
-people wearing mask. The probability of people wears masks is calculated by assuming 
+The probability of people wearing masks is calculated by assuming 
 that survey respondents who answered ‘Always’ were wearing masks all of the time, 
 those who answered ‘Frequently’ were wearing masks 80 percent of the time, 
 those who answered ‘Sometimes’ were wearing masks 50 percent of the time, 
@@ -204,25 +209,31 @@ those who answered ‘Rarely’ were wearing masks 20 percent of the time and
 those who answered ‘Never’ were wearing masks none of the time.
 
 For the most inclusive model, we will explore all the other mobility scores,
-including to workplaces, transit, grocery & pharmacy.
+including to workplaces, transit, parks, and grocery & pharmacy.
 
 
 # The models
 
 ### Data Exploration
 
-```{r summary, echo=FALSE, fig.align="center", out.width="90%", fig.cap="Data Summary"}
-summary(data)
+First of all, we gather and transform all the data identified from above to State
+level aggregated in the time range of 2020-02-15 to 2020-07-15.
+
+The table below shows a summary of all the variables we intend to use.
+```{r summary, echo=FALSE, results = "asis", fig.align="center", out.width="90%", fig.cap="Data Summary"}
+variables <- data %>% select(-c('state'))
+summary_table(variables)
 ```
 
-All the variables have their means and medians very close to each other, that suggests
+As can be seen, all the variables have their means and medians very close to each other, that suggests
 that there is no severe skewness.
 
-By looking at the scatter plots we can notice that `workplaces` is the inverse of the `residential` mobility variable.
-Using both in a OLS regression probably will cause the coefficients to cancel each other.
-The `residential` variable shows promising results, it looks like it has a very linear relationship with `cases_per_100k`.
+By looking at the scatter plots of the various mobility scores, we notice that `workplaces`
+is the inverse of the `residential` mobility variable. And we see in Figure 2 
+that they have almost perfect inverse correlation, having a linear correlation
+coefficient of $-0.93$. Therefore we would only use one out of these two.
 
-```{r scatter_plots, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scatter Plots for Cases per 100k and selected mobility variables', fig.pos='!h', fig.align="center"}
+```{r scatter_plots, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scatter Plots for Cases per 100k and selected mobility variables', fig.pos='!h', fig.align="center", fig.height = 3}
 # cases is cumulative
 # workplaces is the inverse of residential,
 # but the scale of residential is better suited for OLS
@@ -230,30 +241,32 @@ p1 <- ggplot(data, aes(x=workplaces, y=cases_per_100k)) +
   geom_point(color="#69b3a2") + geom_smooth(se = FALSE) 
 p2 <- ggplot(data, aes(x=residential, y=cases_per_100k)) + 
   geom_point(color="#69b3a2") + geom_smooth(se = FALSE)
-p3 <- ggplot(data, aes(x=transit, y=cases_per_100k)) + 
-  geom_point(color="#69b3a2") + geom_smooth(se = FALSE)
 
-p1|p2|p3
+p1 + p2
+```
+
+In Figure 3, plotting the conditional expected value of `cases_per_100k` against `residential`
+and from the data shows a reasonably linear relationship, hence we decide to use it as
+the representative of the mobility scores. Other scores also show nice linear
+relationships. We will use them in the most inclusive model.
+
+```{r scatter_plots_lm, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scatter Plots for Cases per 100k and selected mobility variables (regression line and standard errors)', fig.pos='!h', fig.align="center", fig.height = 3}
+# cases is cumulative
+# workplaces is the inverse of residential,
+# but the scale of residential is better suited for OLS
+
+p1 <- ggplot(data, aes(x=residential, y=cases_per_100k)) + 
+  geom_point(color="#69b3a2") + geom_smooth(method = lm) 
+p2 <- ggplot(data, aes(x=transit, y=cases_per_100k)) + 
+  geom_point(color="#69b3a2") + geom_smooth(method = lm)
+p3 <- ggplot(data, aes(x=parks, y=cases_per_100k)) + 
+  geom_point(color="#69b3a2") + geom_smooth(method = lm)
+
+p1 + p2 + p3
 ```
 
 ### The Linear Models
 
-
-```{r scatter_plots_logs_lm, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scatter Plots for Cases per 100k and selected mobility variables with OLS regression line and standard errors', fig.pos='!h', fig.align="center"}
-# cases is cumulative
-# workplaces is the inverse of residential,
-# but the scale of residential is better suited for OLS
-p1 <- ggplot(data, aes(x=residential, y=cases_per_100k)) + 
-  geom_point(color="#69b3a2") + geom_smooth(method=lm) # method=lm
-p2 <- ggplot(data, aes(x=grocery, y=cases_per_100k)) + 
-  geom_point(color="#69b3a2") + geom_smooth(method=lm) 
-p3 <- ggplot(data, aes(x=transit, y=cases_per_100k)) + 
-  geom_point(color="#69b3a2") + geom_smooth(method=lm)
-
-p1|p2|p3
-```
-
-Our intuition told us that the residential variable would be the best proxy to represent mobilty.
 At this point in time during the pandemic, the U.S. was registering its second wave of Covid-19 cases
 and non-essential business were still closed in most of the sates.
 One way to explain this relationship is that in the states where the residential mobility score increased,
@@ -272,7 +285,9 @@ model_one <- lm(cases_per_100k ~ residential, data=data)
 summary(model_one)
 ```
 
-We got a very significant p-value, which highlights the strong relationship between these two variables.
+Here we have a significant p-value withe residential mobility score. So it seems
+that one point increase in the residential mobility score leads to, on average,
+almost 96 more Covid cases.
 
 ### Model Two
 
@@ -282,61 +297,78 @@ Although by looking at the scatter plot of Cases per 100k and mask wearing proba
 there is no clear relationship, and the slope of the OLS line has the opposite direction to
 what our intuition tell us.
 
-```{r mask_prob, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scatter Plots for Cases per 100k and mask wearing probability', fig.pos='!h', fig.align="center"}
+```{r mask_prob, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scatter Plots for Cases per 100k and mask wearing probability', fig.pos='!h', fig.align="center", fig.height=3}
 # cases is cumulative
 # workplaces is the inverse of residential,
 # but the scale of residential is better suited for OLS
 p1 <- ggplot(data, aes(x=mask_prob, y=cases_per_100k)) + 
   geom_point(color="#69b3a2") + geom_smooth(se = FALSE) 
-p3 <- ggplot(data, aes(x=mask_prob, y=cases_per_100k)) + 
+p2 <- ggplot(data, aes(x=mask_prob, y=cases_per_100k)) + 
   geom_point(color="#69b3a2") + geom_smooth(method=lm)
-p1|p3
+p1|p2
 ```
 
-So, our second model contains the residential mobility score and the face mask wearing probability.
-The coefficient for Mask wearing probability (`mask_prob`), at least has the correct direction but fails to achieve significance.
+So, our second model contains the residential mobility score, the face mask wearing
+probability, as well as the control variable of whether the mask policy has been in place.
 
-The residential mobility score coefficient is still significant, which give us more trust in that variable.
-$$
-cases\_per\_100k\_residents = \beta_0 + \beta_1 residential\_mobility\_score + \beta_2 mask\_wearing\_probability
-$$
+\begin{align}
+cases\_per\_100k\_residents &= \beta_0\\
+&+ \beta_1 residential\_mobility\_score \\
+&+ \beta_2 mask\_wearing\_probability\\
+&+ \beta_3 mask\_policy\_in\_effect
+\end{align}
 ```{r model_two, echo=FALSE, message=FALSE, warning=FALSE}
-model_two <- lm(cases_per_100k ~ residential + fm + mask_prob , data=data)
+model_two <- lm(cases_per_100k ~ residential + mask_policy + mask_prob , data=data)
 summary(model_two)
 ```
 
+The interesting thing here is that it shows, the probability of wearing a mask (`mask_prob`)
+seems to cause more cases, however the mask policy being in place cases fewer cases.
+
+However neither variables are statistically significant, which give us more confidence
+that the mobility score is still the most important.
 
 ### Model Three
 
 Our secondary question was if the other mobility variables could have a significant impact
-on the cases per 100,000 variable. In our data exploration, workplaces also looked promising but
-it looked that it acted in the opposite direction than residential. When we tested this
-variable alone we confirmed our intuition, the workplaces mobility score is also significant
-but acts in the opposite direction than residential.
-
-Our definitive third model is the comparison of all the mobility score variables,
-with the exception of the workplaces variable since it's the opposite of residential.
-The residential mobility score captures the information contained in the other mobility variables.
+on the outcome variable. As previously mentioned, the workplace mobility score is too close
+to perfect linearity with residential, so we'll leave it out, but we can run the model
+against all other mobility scores.
 
 
-$$
-cases\_per\_100k\_residents = \beta_0 + \beta_1 residential\_mobility\_score + \beta_2 parks\_mobility\_score + \beta_3 grocery\_mobility\_score+ \beta_4 transit\_mobility\_score
-$$
+\begin{align}
+cases\_per\_100k\_residents &= \beta_0\\
+&+ \beta_1 residential\_mobility\_score\\
+&+ \beta_2 mask\_wearing\_probability\\
+&+ \beta_3 mask\_policy\_in\_effect\\
+&+ \beta_4 parks\_mobility\_score\\
+&+ \beta_5 grocery\_mobility\_score\\
+&+ \beta_6 transit\_mobility\_score
+\end{align}
+
 ```{r model_three, echo=FALSE, message=FALSE, warning=FALSE}
-model_three <- lm(cases_per_100k ~ residential + fm + mask_prob + parks + grocery + transit, data=data)
+model_three <- lm(cases_per_100k ~ residential + mask_policy + mask_prob + parks + grocery + transit, data=data)
 summary(model_three)
 ```
 
+Perhaps somewhat surprisingly, all the prior variables retained their previous
+directions under earlier models. Residential mobility remains very significant.
+At the same time, higher mobility in grocery shopping and public transit seam to
+cause Covid cases to increase, whereas going to parks seem to cause fewer cases,
+although none of these variables are statistically significant to prove very useful.
+
 
 ### The Regression Table
-``` {r echo=FALSE, message=FALSE, warning=FALSE, results='asis', header=FALSE}
+The models above are summarized in the following regression table.
+
+``` {r echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 stargazer::stargazer(model_one, model_two, model_three, 
-  title = 'Comparisoin of Regression Models')
+  title = 'Comparisoin of Regression Models', header = FALSE)
 ```
 
 # Model Limitations
 
-Time Series: 
+### Time Series
 
 The Research Question under study is well suited for a time series analysis. The
 initial discussion and work, were poised to well take off in including a weekly 
@@ -345,14 +377,13 @@ instruction and the limited machinery in place, the team has decided to take
 an average for the states from a time window where all the variables were produced
 and use it in the model.
 
-Reverse Causality:
+### Reverse Causality
 
 The Research Question under study finds relationship between Mobility and COVID
 cases. But, there is also the reverse path where more COVID cases creates fear
-among people. Thus, people limiting outdoor activities. 
+among people. Thus, people limiting outdoor activities.
 
-
-All Percent drops are not equal:
+### All Percent drops are not equal
 
 A 10% drop in mobility is really good for sparsely populated regions to go below
 a certain threshold in transmitting the virus. The same cannot be applied to 
@@ -361,14 +392,17 @@ seen is omitted.
 
 ### Classic Linear Model assumptions
 
-#### 1. IID Sampling 
-  
-None of the variables seem to violate IID.
+#### 1. IID Sampling
+Given that each data point is aggregated from a U.S. state, the number of cases
+and mobility are largely independent. However the mask wearing policy as well as
+the populations willingness to carry them out do tend to cluster somewhat based
+on geography and political leanings, so they can be argued to be less independent
+of each other.
 
 #### 2. Linear Conditional Expectation 
 
 By looking at the predicted vs. residuals of the model it looks that relationship 
-is very linear.
+is reasonably linear.
 
 ```{r residuals, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Residuals vs Fitted plot for Model One', fig.pos='!h', fig.align="center"}
 plot(model_one, which = 1)
@@ -380,11 +414,16 @@ plot(model_one, which = 1)
 model_three$coefficients
 ```
 
-None of the coefficients was dropped, that means there is no Perfect Collinearity.
+For even the most inclusive model, none of the coefficients of the variables were
+dropped, meaning that there is no perfect colinearity within independent variables.
+
+However we did notice some high colinearity between some mobility scores and
+decided to use a subset, notably between workplaces and residential scores.
 
 ####  4. Homoskedastic Errors 
 
-The scale-location plot is very close to a flat line, which lead us to believe that there is no major issues with heteroskedasticity.
+The scale-location plot is very close to a flat line, which lead us to believe that
+there is no major issues with heteroskedasticity.
 
 ```{r scale_location, echo=FALSE, echo=FALSE, message=FALSE, warning=FALSE, fig.cap='Scale-Location plot for Model One', fig.pos='!h', fig.align="center"}
 plot(model_one, which=3)
@@ -392,8 +431,7 @@ plot(model_one, which=3)
 ####  5. Normally Distributed Errors
 
 The histogram looks does not show a significant deviation from a normal distribution and
-the qqplot also shows very low deviation from normality.
-  
+the Q-Q plot also shows very low deviation from normality.
 
 ```{r qqplot, echo=FALSE, fig.pos='!h', message=FALSE, warning=FALSE, fig.cap='Histogram of residuals for model one and qq-plot for model one', fig.pos='!h', fig.align="center"}
 par(mfrow = c(1, 2))
@@ -402,11 +440,11 @@ plot(model_one, which=2)
 ```
 
   
-In general we can say that all the 5 CLM Assumptions are met.
+In general we can say that all the 5 CLM Assumptions are met to a reasonable degree.
 
 # Omitted Variables
 
-Not following mandates:
+### Not following mandates
 
 Though, State and County put restrictions, including Mask mandate, Curfew, 
 Social distance, Quarantine, park, school and restaurant closures, how much general 
@@ -414,17 +452,30 @@ public abide to these mandates is a very good [Omitted] indicator that influence
 the total cases. The omitted variable positively impacts outcome and positively
 related with measured variable, thus moving away from zero.
 
-International/Non-Local Mobility:
+### International/Non-Local Mobility:
 
-As we all know Port of Entries like New York, San Francisco, Chicago and Seattle
+As we all know Port of Entries such as New York, San Francisco, Chicago and Seattle
 are the first affected places. State wide policies restricting mobility has varying
 effects on how close a location is to the airport or other transit points. Thus,
 closeness to transit stations and airport is an omitted variable. The omitted 
 variable positively impacts outcome and positively related with measured 
 variable, thus moving away from zero.
 
+### Population and Population Density
+
+Even as we captured the population in the outcome variable by considering cases
+per 100k residents, we're not taking into account other non-linear relationship
+between population density and the spread of Covid. For example in a high density
+metropolitan area, the spread of Covid might be super-linearly prominent.
 
 # Conclusion
+Based on the very limited data points that we have and our analysis, it does seem
+that people moving around is indeed a significant (statistically and practically)
+factor in the spread of Covid-19. Higher mobility scores in enclosed areas does
+seem to have a causal effect on higher number of cases per resident in a State.
+
+We've found this to be consistent even with a number of control variables such
+as the mask policy and the proportion of population actually wearing masks.
 
 
 ## References:
