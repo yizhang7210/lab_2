@@ -285,9 +285,9 @@ model_one <- lm(cases_per_100k ~ residential, data=data)
 summary(model_one)
 ```
 
-Here we have a significant p-value withe residential mobility score. So it seems
+Here we have a significant p-value with the residential mobility score. So it seems
 that one point increase in the residential mobility score leads to, on average,
-almost 96 more Covid cases.
+almost 96 more Covid-19 cases per 100,000 inhabitants.
 
 ### Model Two
 
@@ -430,7 +430,7 @@ plot(model_one, which=3)
 ```
 ####  5. Normally Distributed Errors
 
-The histogram looks does not show a significant deviation from a normal distribution and
+The histogram does not show a significant deviation from a normal distribution and
 the Q-Q plot also shows very low deviation from normality.
 
 ```{r qqplot, echo=FALSE, fig.pos='!h', message=FALSE, warning=FALSE, fig.cap='Histogram of residuals for model one and qq-plot for model one', fig.pos='!h', fig.align="center"}
